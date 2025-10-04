@@ -1,0 +1,14 @@
+{
+  "workspace_root": ".",
+  "build_output_dir": "dist",
+  "android_sdk_root": null,
+  "java_home": null,
+  "unity_path": null,
+  "signing": {
+    "keystore_path": null,
+    "keystore_password": null,
+    "key_alias": null,
+    "key_password": null
+  },
+  "allowed_projects": []
+}
