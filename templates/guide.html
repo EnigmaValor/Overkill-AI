@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloud Setup Builder - Build & Run Guide</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom gradient styles to match the React component */
+      .gradient-bg {
+        background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+      }
+      .gradient-text {
+        background: linear-gradient(90deg, #22d3ee, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .code-block {
+        background: #1e293b;
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body class="gradient-bg min-h-screen text-white font-sans">
+    <div class="p-8">
+      <div class="mb-4">
+        <a href="/" class="inline-flex items-center text-cyan-400 hover:text-cyan-300 transition-colors">
+          ← Back to Main
+        </a>
+      </div>
+      
+      <h1 class="text-4xl font-extrabold mb-8 gradient-text">
+        Cloud Setup Builder - Build & Run Guide
+      </h1>
+      
+      <div class="max-w-4xl mx-auto glass-card rounded-xl p-8 space-y-6">
+        <section>
+          <h2 class="text-2xl font-bold mb-3">1. Forudsætninger</h2>
+          <ul class="list-disc list-inside space-y-2 text-gray-300">
+            <li><strong>Node.js</strong> (v18+): <a href="https://nodejs.org/" class="text-cyan-400 underline" target="_blank" rel="noreferrer">Download her</a></li>
+            <li><strong>npm</strong> eller <strong>yarn</strong>: Kommer med Node.js</li>
+            <li><strong>Multipass</strong> (til Linux VMs): <code class="bg-slate-800 px-2 py-1 rounded">sudo snap install multipass</code></li>
+            <li><strong>Android Studio</strong> (til Android-udvikling): <a href="https://developer.android.com/studio" class="text-cyan-400 underline" target="_blank" rel="noreferrer">Download her</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">2. Klon og kør projektet</h2>
+          <div class="code-block">
+# Klon repository
+git clone &lt;din-repo-url&gt;
+cd cloud-setup-builder
+
+# Installer afhængigheder
+npm install
+
+# Start udviklingsserveren
+npm run dev
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">3. Byg til produktion</h2>
+          <div class="code-block">
+# Byg projektet
+npm run build
+
+# Start produktionsserver
+npm start
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">4. Konfigurer Multipass til Linux-udvikling</h2>
+          <div class="code-block">
+# Opret en ny Ubuntu VM
+multipass launch --name ubuntu-dev --mem 4G --disk 40G
+
+# Adgang til VM
+multipass shell ubuntu-dev
+
+# Installer afhængigheder i VM
+sudo apt update
+sudo apt install -y build-essential git python3
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">5. Konfigurer Android Studio</h2>
+          <ol class="list-decimal list-inside space-y-2 text-gray-300">
+            <li>Åbn Android Studio</li>
+            <li>Gå til <code>Tools &gt; SDK Manager</code></li>
+            <li>Installer:
+              <ul class="list-disc list-inside ml-6">
+                <li>Android SDK Platform-Tools</li>
+                <li>NDK (Native Development Kit)</li>
+                <li>Emulator</li>
+              </ul>
+            </li>
+            <li>Opret en virtuel enhed i AVD Manager</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">6. Byg dine projekter</h2>
+          <p class="text-gray-300">I applikationen kan du:</p>
+          <ul class="list-disc list-inside space-y-2 text-gray-300">
+            <li>Oprette nye projekter (Android/Linux/Hybrid)</li>
+            <li>Generere kode med AI</li>
+            <li>Bygge og deploye direkte fra UI</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">7. Byg ISO/APK</h2>
+          <p class="text-gray-300 mb-2"><strong>Til Linux:</strong></p>
+          <div class="code-block mb-4">
+multipack build --format iso --output my-app.iso
+          </div>
+          <p class="text-gray-300 mb-2"><strong>Til Android:</strong></p>
+          <div class="code-block">
+./gradlew assembleRelease
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">8. Kør i produktion</h2>
+          <div class="code-block">
+# Stop udviklingsserver (Ctrl+C)
+# Start produktionsserver
+npm start
+          </div>
+          <p class="text-gray-300 mt-4">Applikationen vil nu køre på <code class="bg-slate-800 px-2 py-1 rounded">http://localhost:3000</code></p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-3">Tips til optimal brug</h2>
+          <ul class="list-disc list-inside space-y-2 text-gray-300">
+            <li>Brug "Guide"-tabben for trin-for-trin opsætning</li>
+            <li>Generer kode med AI ved at beskrive din app i "AI"-tabben</li>
+            <li>Overvåg build-metrics i realtid på dashboardet</li>
+            <li>Brug Multipass til at teste Linux-applikationer i isolerede miljøer</li>
+          </ul>
+          <p class="mt-4 text-gray-400 text-sm italic">Har du problemer med installationen? Tjek "Guide"-tabben i applikationen for detaljerede instruktioner med kommandoer og fejlfinding.</p>
+        </section>
+      </div>
+    </div>
+
+    <footer class="p-4 text-center opacity-70">
+      <small>Config: <code id="config-info"></code></small>
+    </footer>
+
+    <script>
+      window.__CONFIG__ = {{ config | tojson | safe }};
+      document.getElementById('config-info').textContent = JSON.stringify(window.__CONFIG__ || {}, null, 0);
+    </script>
+  </body>
+</html>
