@@ -1,0 +1,86 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.roblox.hack"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:4:5-67
+11-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:5:5-79
+12-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:5:22-76
+13
+14    <permission
+14-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:22:5-24:47
+15        android:name="com.roblox.hack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+15-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:23:9-81
+16        android:protectionLevel="signature" />
+16-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:24:9-44
+17
+18    <uses-permission android:name="com.roblox.hack.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+18-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:26:5-97
+18-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:26:22-94
+19
+20    <application
+20-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:7:5-21:19
+21        android:allowBackup="true"
+21-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:8:9-35
+22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+22-->[androidx.core:core:1.9.0] /home/ubuntu/.gradle/caches/transforms-3/47e328fbb9a6da19e7cdd96cc41cfa33/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
+23        android:debuggable="true"
+24        android:extractNativeLibs="true"
+25        android:icon="@android:drawable/ic_dialog_info"
+25-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:9:9-56
+26        android:label="Roblox Admin Hack"
+26-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:10:9-42
+27        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+27-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:11:9-67
+28        <activity
+28-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:12:9-20:20
+29            android:name="com.roblox.hack.MainActivity"
+29-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:13:13-41
+30            android:exported="true"
+30-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:14:13-36
+31            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+31-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:15:13-71
+32            <intent-filter>
+32-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:16:13-19:29
+33                <action android:name="android.intent.action.MAIN" />
+33-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:17:17-69
+33-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:17:25-66
+34
+35                <category android:name="android.intent.category.LAUNCHER" />
+35-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:18:17-77
+35-->/workspace/android_roblox_hack/src/main/AndroidManifest.xml:18:27-74
+36            </intent-filter>
+37        </activity>
+38
+39        <provider
+39-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+40            android:name="androidx.startup.InitializationProvider"
+40-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:25:13-67
+41            android:authorities="com.roblox.hack.androidx-startup"
+41-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:26:13-68
+42            android:exported="false" >
+42-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:27:13-37
+43            <meta-data
+43-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+44                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+44-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:30:17-75
+45                android:value="androidx.startup" />
+45-->[androidx.emoji2:emoji2:1.2.0] /home/ubuntu/.gradle/caches/transforms-3/97e468b2ae8f16656080115164696a75/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:31:17-49
+46            <meta-data
+46-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/ubuntu/.gradle/caches/transforms-3/ab97335a65fd3990eb1de4486ad16c03/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:31:13-33:52
+47                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+47-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/ubuntu/.gradle/caches/transforms-3/ab97335a65fd3990eb1de4486ad16c03/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:32:17-78
+48                android:value="androidx.startup" />
+48-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/ubuntu/.gradle/caches/transforms-3/ab97335a65fd3990eb1de4486ad16c03/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:33:17-49
+49        </provider>
+50    </application>
+51
+52</manifest>

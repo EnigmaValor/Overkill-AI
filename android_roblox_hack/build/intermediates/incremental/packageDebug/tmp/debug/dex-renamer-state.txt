@@ -1,0 +1,7 @@
+#Sat Oct 04 14:24:34 UTC 2025
+base.0=/workspace/android_roblox_hack/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+base.1=/workspace/android_roblox_hack/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+path.0=classes.dex
+path.1=0/classes.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex

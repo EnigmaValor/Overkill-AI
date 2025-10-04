@@ -10,7 +10,7 @@ from magic_ai_builder.config import BuilderConfig
 def build_gradle_android(project_dir: str, variant: str, config: BuilderConfig, extra_gradle_args: Optional[List[str]] = None) -> str:
     project_dir = os.path.abspath(project_dir)
     gradlew = os.path.join(project_dir, "gradlew")
-    gradle_cmd = [gradlew if os.path.exists(gradlew) else "gradle"]
+    gradle_cmd = ["gradle"]  # Brug altid system Gradle
 
     task = f"assemble{variant[0].upper()}{variant[1:]}"
     cmd = gradle_cmd + [task]
