@@ -1,41 +1,66 @@
-# Magic AI Builder
+# Advanced Password Manager
 
-A minimal dashboard and CLI to build Android APKs via Gradle or Unity, with optional APK signing.
+En kraftfuld React-komponent til passwordhåndtering med avancerede sikkerhedsfunktioner.
 
-## Quick start
+## Funktioner
 
-Install dependencies:
+- **Password Strength Checker**: Real-time evaluering af password styrke
+- **Password Generator**: Generer sikre passwords med tilpasselige indstillinger
+- **Shamir Secret Sharing**: Simulering af hemmelig deling for ekstra sikkerhed
+- **Password Encryption**: Kryptering af passwords med brugerdefineret nøgle
+- **Responsive Design**: Flot og moderne UI med Tailwind CSS
 
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Run the web server:
-
-```bash
-python -m magic_ai_builder.server
-```
-
-Run CLI (Gradle example):
+## Installation
 
 ```bash
-python -m magic_ai_builder.cli gradle /path/to/android/project --variant Release \
-  --build-output-dir dist --android-sdk-root $ANDROID_SDK_ROOT --java-home $JAVA_HOME \
-  --keystore /path/to.keystore --keystore-pass secret --key-alias upload --key-pass secret
+npm install
 ```
 
-Run CLI (Unity example):
+## Kør udviklings-server
 
 ```bash
-python -m magic_ai_builder.cli unity /path/to/unity/project \
-  --build-method BuildScripts.AndroidBuild --output-name unity_build.apk \
-  --unity-path /opt/unity/Editor/Unity --android-sdk-root $ANDROID_SDK_ROOT --java-home $JAVA_HOME
+npm run dev
 ```
 
-Unity sample build script lives at `samples/unity/BuildScripts.cs`.
+## Build til produktion
 
-## Notes
-- Ensure `apksigner` is installed and in PATH for signing.
-- Unity builds require a valid Unity installation and licenses in CI.
-- Gradle builds prefer the project-local `gradlew` wrapper.
+```bash
+npm run build
+```
+
+## Funktioner i detaljer
+
+### Password Strength Checker
+- Real-time evaluering af password styrke
+- Visuel indikator med farver (rød/gul/grøn)
+- Detaljerede krav (længde, store/små bogstaver, tal, specialtegn)
+- Mulighed for at vise/skjule password
+
+### Password Generator
+- Justerbar længde (6-30 tegn)
+- Valgmuligheder for tegntyper:
+  - Store bogstaver (A-Z)
+  - Små bogstaver (a-z)
+  - Tal (0-9)
+  - Specialtegn (!@#$...)
+
+### Shamir Secret Sharing
+- Simulering af Shamir's Secret Sharing algoritme
+- Konfigurerbar threshold (k) og total antal shares (n)
+- Generering af shares til sikker opbevaring
+
+### Password Encryption
+- Simpel kryptering med brugerdefineret nøgle
+- Base64 encoding af resultat
+- Copy-funktionalitet til clipboard
+
+## Sikkerhedsnotater
+
+Dette værktøj simulerer avancerede password-sikkerhedsfunktioner. Til produktionsbrug bør du implementere ordentlige kryptografiske biblioteker og følge bedste praksis for sikkerhed.
+
+## Teknologier
+
+- React 18
+- TypeScript
+- Tailwind CSS
+- Vite
