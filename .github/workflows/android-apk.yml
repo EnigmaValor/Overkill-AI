@@ -18,12 +18,36 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Install Android SDK components
+        run: |
+          sudo mkdir -p /usr/lib/android
+          ANDROID_SDK_ROOT=/usr/lib/android/sdk
+          sudo mkdir -p "$ANDROID_SDK_ROOT"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/35.0.0:$PATH" >> $GITHUB_ENV
+          curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/cmdline-tools.zip
+          sudo unzip -qo /tmp/cmdline-tools.zip -d "$ANDROID_SDK_ROOT"
+          sudo mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          sudo mv "$ANDROID_SDK_ROOT/cmdline-tools"/* "$ANDROID_SDK_ROOT/cmdline-tools/latest" || true
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;35.0.0"
+
+      - name: Download Gradle
+        run: |
+          curl -sSL https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          sudo unzip -qo /tmp/gradle.zip -d /usr/local/gradle
+          echo "GRADLE_HOME=/usr/local/gradle/gradle-8.9" >> $GITHUB_ENV
+          echo "PATH=/usr/local/gradle/gradle-8.9/bin:$PATH" >> $GITHUB_ENV
 
       - name: Build Debug APK
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
         run: |
-          ./gradlew assembleDebug --stacktrace
+          gradle assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
