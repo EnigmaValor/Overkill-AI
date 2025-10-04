@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMENEO Arena - FatherTech Platform</title>
+    <link rel="stylesheet" href="ameneo-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="quantum-container">
+        <!-- Navigation -->
+        <nav class="quantum-nav">
+            <div class="nav-brand">
+                <span class="brand-icon">⚛️</span>
+                <span class="brand-text">AMENEO ARENA</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link" onclick="showSection('hero')">🏠 Home</a>
+                <a href="#" class="nav-link" onclick="showSection('dashboard')" id="dashboardLink">🎮 Dashboard</a>
+                <a href="#" class="nav-link" onclick="showSection('about')">ℹ️ About</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section id="heroSection" class="hero-section active-section">
+            <div class="hero-content">
+                <h1 class="quantum-title">🚀 AMENEO ARENA</h1>
+                <p class="quantum-subtitle">Quantum FatherTech Platform</p>
+                <p class="hero-description">Your Ultimate Battle Companion for Modern Parenting</p>
+                
+                <div class="hero-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Battle Bots</h3>
+                        <p>Deploy quantum-powered AI assistants for every parenting challenge</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Real-time Analytics</h3>
+                        <p>Track progress and optimize your fathering strategies with live data</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Evidence Vault</h3>
+                        <p>Secure documentation and pattern analysis for relationship insights</p>
+                    </div>
+                </div>
+                
+                <div class="cta-buttons">
+                    <button onclick="showLogin()" class="btn quantum-btn">⚡ Quantum Login</button>
+                    <button onclick="showRegister()" class="btn plasma-btn">🌀 Join Revolution</button>
+                </div>
+            </div>
+            
+            <div class="quantum-particles"></div>
+        </section>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+                <h2>⚡ Quantum Login</h2>
+                <form id="loginForm" class="quantum-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn quantum-btn full-width">🚀 Enter Arena</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeModal('registerModal')">&times;</span>
+                <h2>🌀 Join the Revolution</h2>
+                <form id="registerForm" class="quantum-form">
+                    <div class="form-group">
+                        <label for="registerName">Father Name</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="childrenCount">Number of Children</label>
+                        <select id="childrenCount" required>
+                            <option value="">Select...</option>
+                            <option value="1">1 Child</option>
+                            <option value="2">2 Children</option>
+                            <option value="3">3 Children</option>
+                            <option value="4+">4+ Children</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn plasma-btn full-width">🌟 Create Quantum Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboardSection" class="dashboard-section">
+            <div class="quantum-dashboard">
+                
+                <!-- 🔥 USER PROFILE CARD -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="avatar-container">
+                            <div class="quantum-avatar">👨‍👧‍👦</div>
+                            <div class="status-indicator online"></div>
+                        </div>
+                        <div class="user-info">
+                            <h2 id="userName">Quantum Father</h2>
+                            <p class="user-title">Level 5 Battle Commander</p>
+                        </div>
+                    </div>
+                    
+                    <div class="level-badge" data-level="5">
+                        <div class="badge-icon">🌟</div>
+                        <div class="level-text">QUANTUM FATHER</div>
+                        <div class="xp-container">
+                            <div class="xp-bar">
+                                <div class="xp-progress" style="width: 75%"></div>
+                            </div>
+                            <span class="xp-text">7,500 / 10,000 XP</span>
+                        </div>
+                    </div>
+                    
+                    <div class="user-stats">
+                        <div class="stat">
+                            <div class="stat-value">1,250</div>
+                            <div class="stat-label">Battle Points</div>
+                            <div class="stat-icon">⚔️</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">47</div>
+                            <div class="stat-label">Evidence Files</div>
+                            <div class="stat-icon">📁</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Network Allies</div>
+                            <div class="stat-icon">🤝</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🤖 AI BOTS GRID -->
+                <div class="bots-section">
+                    <h3 class="section-title">🤖 AI Battle Squadron</h3>
+                    <div class="bots-grid">
+                        <div class="bot-card" data-power="95">
+                            <div class="bot-header">
+                                <div class="bot-avatar">⚛️</div>
+                                <div class="bot-info">
+                                    <div class="bot-name">Quantum Builder AI</div>
+                                    <div class="bot-status online">Online</div>
+                                </div>
+                            </div>
+                            <div class="bot-stats">
+                                <div class="power-level">
+                                    <span class="power-icon">🔋</span>
+                                    <span class="power-text">Power: 95/100</span>
+                                    <div class="power-bar">
+                                        <div class="power-fill" style="width: 95%"></div>
+                                    </div>
+                                </div>
+                                <div class="specialty">🏗️ Infrastructure & Project Management</div>
+                            </div>
+                            <div class="bot-actions">
+                                <button class="action-btn primary">🚀 Deploy Project</button>
+                                <button class="action-btn secondary">🔧 Optimize System</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bot-card" data-power="88">
+                            <div class="bot-header">
+                                <div class="bot-avatar">🛡️</div>
+                                <div class="bot-info">
+                                    <div class="bot-name">Neural Security AI</div>
+                                    <div class="bot-status online">Online</div>
+                                </div>
+                            </div>
+                            <div class="bot-stats">
+                                <div class="power-level">
+                                    <span class="power-icon">🔋</span>
+                                    <span class="power-text">Power: 88/100</span>
+                                    <div class="power-bar">
+                                        <div class="power-fill" style="width: 88%"></div>
+                                    </div>
+                                </div>
+                                <div class="specialty">🔒 Privacy & Digital Security</div>
+                            </div>
+                            <div class="bot-actions">
+                                <button class="action-btn primary">🛡️ Scan Threats</button>
+                                <button class="action-btn secondary">📱 Monitor Communications</button>
+                            </div>
+                        </div>
+
+                        <div class="bot-card" data-power="92">
+                            <div class="bot-header">
+                                <div class="bot-avatar">⚖️</div>
+                                <div class="bot-info">
+                                    <div class="bot-name">Legal Warrior AI</div>
+                                    <div class="bot-status online">Online</div>
+                                </div>
+                            </div>
+                            <div class="bot-stats">
+                                <div class="power-level">
+                                    <span class="power-icon">🔋</span>
+                                    <span class="power-text">Power: 92/100</span>
+                                    <div class="power-bar">
+                                        <div class="power-fill" style="width: 92%"></div>
+                                    </div>
+                                </div>
+                                <div class="specialty">📜 Legal Strategy & Documentation</div>
+                            </div>
+                            <div class="bot-actions">
+                                <button class="action-btn primary">⚖️ Legal Analysis</button>
+                                <button class="action-btn secondary">📝 Draft Documents</button>
+                            </div>
+                        </div>
+
+                        <div class="bot-card" data-power="85">
+                            <div class="bot-header">
+                                <div class="bot-avatar">🤝</div>
+                                <div class="bot-info">
+                                    <div class="bot-name">Father Nexus AI</div>
+                                    <div class="bot-status online">Online</div>
+                                </div>
+                            </div>
+                            <div class="bot-stats">
+                                <div class="power-level">
+                                    <span class="power-icon">🔋</span>
+                                    <span class="power-text">Power: 85/100</span>
+                                    <div class="power-bar">
+                                        <div class="power-fill" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="specialty">🌐 Network Building & Support</div>
+                            </div>
+                            <div class="bot-actions">
+                                <button class="action-btn primary">🤝 Connect Fathers</button>
+                                <button class="action-btn secondary">📊 Analyze Patterns</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ⚔️ BATTLE ARENA -->
+                <div class="battle-section">
+                    <div class="battle-header">
+                        <h3 class="section-title">🎯 Quantum Battle Arena</h3>
+                        <button class="start-battle-btn" onclick="startQuantumBattle()">
+                            ⚡ Start Quantum Battle
+                        </button>
+                    </div>
+                    
+                    <div class="battle-arena">
+                        <div class="battle-log" id="battleLog">
+                            <div class="battle-message">
+                                <span class="battle-icon">🎮</span>
+                                <span class="battle-text">Ready for quantum combat. Deploy your AI squadron!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📁 EVIDENCE MANAGER -->
+                <div class="evidence-section">
+                    <h3 class="section-title">📁 Quantum Evidence Vault</h3>
+                    <div class="evidence-grid">
+                        <div class="evidence-card high-confidence">
+                            <div class="evidence-header">
+                                <div class="evidence-type">💬 Communication</div>
+                                <div class="confidence-badge">92%</div>
+                            </div>
+                            <div class="evidence-title">Weekend Schedule Analysis</div>
+                            <div class="ai-analysis">AI: Strong positive patterns detected</div>
+                            <div class="evidence-actions">
+                                <button class="evidence-btn">📊 View Analysis</button>
+                                <button class="evidence-btn">📤 Export</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-card medium-confidence">
+                            <div class="evidence-header">
+                                <div class="evidence-type">📱 Digital Activity</div>
+                                <div class="confidence-badge">78%</div>
+                            </div>
+                            <div class="evidence-title">Co-parent Communication Log</div>
+                            <div class="ai-analysis">AI: Moderate concern indicators</div>
+                            <div class="evidence-actions">
+                                <button class="evidence-btn">📊 View Analysis</button>
+                                <button class="evidence-btn">📤 Export</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-card low-confidence">
+                            <div class="evidence-header">
+                                <div class="evidence-type">📅 Schedule Tracking</div>
+                                <div class="confidence-badge">65%</div>
+                            </div>
+                            <div class="evidence-title">Custody Adherence Report</div>
+                            <div class="ai-analysis">AI: Insufficient data for confidence</div>
+                            <div class="evidence-actions">
+                                <button class="evidence-btn">📊 View Analysis</button>
+                                <button class="evidence-btn">📤 Export</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="aboutSection" class="about-section">
+            <div class="about-content">
+                <h2>🌌 About AMENEO Arena</h2>
+                <p>AMENEO Arena represents the cutting-edge fusion of artificial intelligence and fatherhood support. Our quantum-powered platform provides fathers with the tools, insights, and community they need to navigate modern parenting challenges.</p>
+                
+                <div class="about-features">
+                    <div class="about-feature">
+                        <h3>🤖 AI-Powered Assistance</h3>
+                        <p>Deploy specialized AI bots for every aspect of fatherhood - from legal documentation to communication analysis.</p>
+                    </div>
+                    <div class="about-feature">
+                        <h3>📊 Data-Driven Insights</h3>
+                        <p>Transform your parenting journey with real-time analytics and pattern recognition.</p>
+                    </div>
+                    <div class="about-feature">
+                        <h3>🛡️ Secure & Private</h3>
+                        <p>Military-grade encryption ensures your family data remains protected and confidential.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="ameneo-scripts.js"></script>
+</body>
+</html>
