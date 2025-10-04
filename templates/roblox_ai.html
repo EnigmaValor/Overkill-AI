@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🤖 Roblox AI Assistant - ULTIMATE POWER</title>
+    <style>
+        body { background: black; color: lime; font-family: monospace; }
+        .hack-effect { animation: glitch 0.5s infinite; }
+        @keyframes glitch { 
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            /* Mere fancy "hack" animation */
+        }
+    </style>
+</head>
+<body>
+    <div class="hack-effect">
+        <h1>🚀 ROBLOX AI HACK ACTIVATED</h1>
+        <div id="terminal">
+            > INITIATING ADMIN PRIVILEGES...<br>
+            > BYPASSING SECURITY... [██████████] 100%<br>
+            > WARNING: SYSTEM OVERRIDE DETECTED<br>
+            > ADMIN POWERS: <span id="powers">ACTIVATING...</span>
+        </div>
+    </div>
+
+    <script>
+        // Dette ser hacket ud men gør ingenting!
+        setTimeout(() => {
+            document.getElementById('powers').innerHTML = "✅ FLY MODE<br>✅ INFINITE COINS<br>✅ GOD MODE<br>✅ UNLOCK ALL ITEMS";
+        }, 3000);
+
+        // Tilføj massevis af "hacking" tekster der ikke gør noget
+        setInterval(() => {
+            const messages = [
+                "> Encryption bypassed",
+                "> Firewall disabled", 
+                "> Root access granted",
+                "> Memory injection complete"
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML += "<br>" + randomMsg;
+            terminal.scrollTop = terminal.scrollHeight;
+        }, 2000);
+    </script>
+</body>
+</html>
