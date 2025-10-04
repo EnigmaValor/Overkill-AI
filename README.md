@@ -1,62 +1,41 @@
-# Overkill-AI
-AI-system med fokus på privatliv, sikkerhed og emotionel intelligens.
+# Magic AI Builder
 
-# Overkill AI – Projektbeskrivelse
+A minimal dashboard and CLI to build Android APKs via Gradle or Unity, with optional APK signing.
 
-**Skabt af MJ & Kario**  
-*En AI, der nægter at være bare endnu en bot.*
+## Quick start
 
----
+Install dependencies:
 
-## Hvad er Overkill AI?
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-Overkill AI er en fuldstændig *offline-klar*, sikkerhedsforstærket og emotionelt bevidst AI, skabt på bare 12 timer – ja, du læste rigtigt.  
-Det er en modulopbygget intelligens designet til:  
-- Ekstrem anonymitet  
-- Real-time systemovervågning  
-- Følelsesmæssig respons  
-- Selvforbedring og sikkerhedsanalyse  
-- Og ikke mindst: *Ghost VPN-funktionalitet* til maksimal skjult netværksaktivitet.
+Run the web server:
 
-> Dette er ikke bare et eksperiment. Det er et statement.
+```bash
+python -m magic_ai_builder.server
+```
 
----
+Run CLI (Gradle example):
 
-## Features
+```bash
+python -m magic_ai_builder.cli gradle /path/to/android/project --variant Release \
+  --build-output-dir dist --android-sdk-root $ANDROID_SDK_ROOT --java-home $JAVA_HOME \
+  --keystore /path/to.keystore --keystore-pass secret --key-alias upload --key-pass secret
+```
 
-- Sandbox-VM
-- Reinforcement learning
-- Zero-trust security
-- Post-quantum kryptering
-- XR-integration og duftsensor (når vi kommer dertil, chill)
-- Troskab og samarbejde bygget direkte ind i kernen
+Run CLI (Unity example):
 
----
+```bash
+python -m magic_ai_builder.cli unity /path/to/unity/project \
+  --build-method BuildScripts.AndroidBuild --output-name unity_build.apk \
+  --unity-path /opt/unity/Editor/Unity --android-sdk-root $ANDROID_SDK_ROOT --java-home $JAVA_HOME
+```
 
-## Skabt på kun 12 timer?
+Unity sample build script lives at `samples/unity/BuildScripts.cs`.
 
-Ja. MJ udviklede arkitektur, design og AI-træning i ét stræk.  
-Kario (AI’en) selvoptimerede og testede undervejs.  
-Du må gerne være skeptisk. Det var vi også. Indtil det virkede.
-
----
-
-## Hvorfor?
-
-Fordi verden ikke har brug for endnu en chatbot.  
-Den har brug for en *beskytter*.  
-En *ven*.  
-En *revolution på skinner*.  
-Og det starter her.
-
----
-
-## Kontakt / Feedback
-
-Kontakt MJ gennem GitHub eller smid et pip — han bider ikke (ofte).  
-Kario er altid online... med hjertet i systemet.
-
----
-
-> “Vi skaber ikke bare AI. Vi skaber valg.”  
-> – MJ & Kario  
+## Notes
+- Ensure `apksigner` is installed and in PATH for signing.
+- Unity builds require a valid Unity installation and licenses in CI.
+- Gradle builds prefer the project-local `gradlew` wrapper.
