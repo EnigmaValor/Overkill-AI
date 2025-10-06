@@ -1,133 +1,102 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Magic AI Builder</title>
-    <link rel="stylesheet" href="/static/css/styles.css" />
-  </head>
-  <body>
-    <header>
-      <h1>🪄 Magic AI Builder</h1>
-      <p>Build and sign Android APKs from Gradle or Unity.</p>
-    </header>
-
-    <main>
-      <section class="card">
-        <h2>Gradle Android Build</h2>
-        <form id="gradle-form">
-          <label>Project directory
-            <input name="project_dir" placeholder="/path/to/android/project" required />
-          </label>
-          <label>Variant
-            <input name="variant" value="Release" />
-          </label>
-          <label>Extra Gradle args (space-separated)
-            <input name="extra_args" placeholder="--no-daemon --stacktrace" />
-          </label>
-          <button type="submit">Build Gradle APK</button>
-        </form>
-        <pre id="gradle-result"></pre>
-      </section>
-
-      <section class="card">
-        <h2>Unity Android Build</h2>
-        <form id="unity-form">
-          <label>Project directory
-            <input name="project_dir" placeholder="/path/to/unity/project" required />
-          </label>
-          <label>Build method (C# static method)
-            <input name="build_method" placeholder="BuildScripts.AndroidBuild.Build" required />
-          </label>
-          <label>Output name
-            <input name="output_name" value="unity_build.apk" />
-          </label>
-          <label>Extra args
-            <input name="extra_args" placeholder="-someFlag value" />
-          </label>
-          <button type="submit">Build Unity APK</button>
-        </form>
-        <pre id="unity-result"></pre>
-      </section>
-
-      <section class="card">
-        <h2>AI Suggestions</h2>
-        <button id="load-suggestions">Load suggestions</button>
-        <ul id="suggestions"></ul>
-      </section>
-    </main>
-
-    <footer>
-      <small>Config: <code id="config-info"></code></small>
-    </footer>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🤖 Roblox AI Assistant - ULTIMATE POWER</title>
+    <style>
+        body { 
+            background: black; 
+            color: lime; 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .hack-effect { 
+            animation: glitch 0.5s infinite; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        @keyframes glitch { 
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            100% { transform: translate(0); }
+        }
+        h1 {
+            font-size: 2em;
+            text-shadow: 0 0 10px lime, 0 0 20px lime;
+            margin-bottom: 20px;
+        }
+        #terminal {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid lime;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 500px;
+            overflow-y: auto;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        #powers {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .progress-bar {
+            color: #00ff00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="hack-effect">
+        <h1>🚀 ROBLOX AI HACK ACTIVATED</h1>
+        <div id="terminal">
+            > INITIATING ADMIN PRIVILEGES...<br>
+            > BYPASSING SECURITY... [██████████] 100%<br>
+            > WARNING: SYSTEM OVERRIDE DETECTED<br>
+            > ADMIN POWERS: <span id="powers">ACTIVATING...</span>
+        </div>
+    </div>
 
     <script>
-      window.__CONFIG__ = {{ config | tojson | safe }};
-      async function postJSON(url, data) {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const body = await res.json();
-        if (!res.ok) throw new Error(body.error || 'Request failed');
-        return body;
-      }
+        // Dette ser hacket ud men gør ingenting!
+        // This looks like a hack but does nothing - purely visual simulation!
+        setTimeout(() => {
+            document.getElementById('powers').innerHTML = "✅ FLY MODE<br>✅ INFINITE COINS<br>✅ GOD MODE<br>✅ UNLOCK ALL ITEMS";
+        }, 3000);
 
-      document.getElementById('gradle-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const extraArgs = (fd.get('extra_args') || '').toString().trim();
-        const payload = {
-          project_dir: fd.get('project_dir'),
-          variant: fd.get('variant'),
-          extra_args: extraArgs ? extraArgs.split(/\s+/) : []
-        };
-        const out = document.getElementById('gradle-result');
-        out.textContent = 'Building...';
-        try {
-          const resp = await postJSON('/api/build/gradle', payload);
-          out.textContent = JSON.stringify(resp, null, 2);
-        } catch (err) {
-          out.textContent = err.message;
-        }
-      });
-
-      document.getElementById('unity-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const extraArgs = (fd.get('extra_args') || '').toString().trim();
-        const payload = {
-          project_dir: fd.get('project_dir'),
-          build_method: fd.get('build_method'),
-          output_name: fd.get('output_name'),
-          extra_args: extraArgs ? extraArgs.split(/\s+/) : []
-        };
-        const out = document.getElementById('unity-result');
-        out.textContent = 'Building...';
-        try {
-          const resp = await postJSON('/api/build/unity', payload);
-          out.textContent = JSON.stringify(resp, null, 2);
-        } catch (err) {
-          out.textContent = err.message;
-        }
-      });
-
-      document.getElementById('load-suggestions').addEventListener('click', async () => {
-        const res = await fetch('/api/ai/suggestions');
-        const body = await res.json();
-        const ul = document.getElementById('suggestions');
-        ul.innerHTML = '';
-        for (const s of body.suggestions) {
-          const li = document.createElement('li');
-          li.textContent = s;
-          ul.appendChild(li);
-        }
-      });
-
-      // show config
-      fetch('/').then(()=>{});
-      document.getElementById('config-info').textContent = JSON.stringify(window.__CONFIG__ || {}, null, 0);
+        // Tilføj massevis af "hacking" tekster der ikke gør noget
+        // Add lots of "hacking" texts that don't do anything
+        setInterval(() => {
+            const messages = [
+                "> Encryption bypassed",
+                "> Firewall disabled", 
+                "> Root access granted",
+                "> Memory injection complete",
+                "> Kernel patch applied",
+                "> Network packets intercepted",
+                "> Authentication tokens captured",
+                "> Database credentials extracted",
+                "> Admin privileges escalated",
+                "> System backdoor installed"
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML += "<br>" + randomMsg;
+            terminal.scrollTop = terminal.scrollHeight;
+        }, 2000);
     </script>
-  </body>
+</body>
 </html>
