@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AMENEO Arena</title>
+    <link rel="stylesheet" href="/static/css/ameneo-styles.css">
+    <link rel="stylesheet" href="/static/css/ameneo-animations.css">
+</head>
+<body>
+    <div class="quantum-dashboard">
+        
+        <!-- 🔥 USER PROFILE CARD -->
+        <div class="profile-card">
+            <div class="level-badge" data-level="5">
+                <div class="badge-icon">🌟</div>
+                <div class="level-text">QUANTUM FATHER</div>
+                <div class="xp-bar">
+                    <div class="xp-progress" style="width: 75%"></div>
+                </div>
+            </div>
+            
+            <div class="user-stats">
+                <div class="stat">
+                    <div class="stat-value">1,250</div>
+                    <div class="stat-label">Battle Points</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">47</div>
+                    <div class="stat-label">Evidence Files</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Network Allies</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🤖 AI BOTS GRID -->
+        <div class="bots-grid">
+            <div class="bot-card" data-power="95">
+                <div class="bot-header">
+                    <div class="bot-avatar">⚛️</div>
+                    <div class="bot-name">Quantum Builder AI</div>
+                </div>
+                <div class="bot-stats">
+                    <div class="power-level">🔋 Power: 95/100</div>
+                    <div class="specialty">🏗️ Infrastructure</div>
+                </div>
+                <div class="bot-actions">
+                    <button class="action-btn">🚀 Deploy Project</button>
+                    <button class="action-btn">🔧 Optimize System</button>
+                </div>
+            </div>
+            
+            <div class="bot-card" data-power="88">
+                <div class="bot-header">
+                    <div class="bot-avatar">🛡️</div>
+                    <div class="bot-name">Neural Security AI</div>
+                </div>
+                <div class="bot-stats">
+                    <div class="power-level">🔋 Power: 88/100</div>
+                    <div class="specialty">🔒 Security</div>
+                </div>
+                <div class="bot-actions">
+                    <button class="action-btn">🔍 Scan Threats</button>
+                    <button class="action-btn">🛡️ Deploy Shield</button>
+                </div>
+            </div>
+
+            <div class="bot-card" data-power="92">
+                <div class="bot-header">
+                    <div class="bot-avatar">⚖️</div>
+                    <div class="bot-name">Legal Warrior AI</div>
+                </div>
+                <div class="bot-stats">
+                    <div class="power-level">🔋 Power: 92/100</div>
+                    <div class="specialty">⚖️ Legal Strategy</div>
+                </div>
+                <div class="bot-actions">
+                    <button class="action-btn">📜 Draft Document</button>
+                    <button class="action-btn">⚔️ Battle Plan</button>
+                </div>
+            </div>
+
+            <div class="bot-card" data-power="85">
+                <div class="bot-header">
+                    <div class="bot-avatar">🤝</div>
+                    <div class="bot-name">Father Nexus AI</div>
+                </div>
+                <div class="bot-stats">
+                    <div class="power-level">🔋 Power: 85/100</div>
+                    <div class="specialty">🌐 Networking</div>
+                </div>
+                <div class="bot-actions">
+                    <button class="action-btn">📡 Connect Allies</button>
+                    <button class="action-btn">💬 Send Message</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚔️ BATTLE ARENA -->
+        <div class="battle-arena">
+            <div class="battle-header">
+                <h3>🎯 Quantum Battle Arena</h3>
+                <button class="start-battle-btn" onclick="startQuantumBattle()">
+                    ⚡ Start Quantum Battle
+                </button>
+            </div>
+            
+            <div class="battle-log" id="battleLog">
+                <div class="battle-placeholder">
+                    <p>⚡ Ready to begin quantum battle simulation</p>
+                    <p>Click "Start Quantum Battle" to initiate sequence</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📁 EVIDENCE MANAGER -->
+        <div class="evidence-manager">
+            <h3>📁 Quantum Evidence Vault</h3>
+            <div class="evidence-grid">
+                <div class="evidence-card">
+                    <div class="evidence-type">💬 Communication</div>
+                    <div class="evidence-title">Ida's Weekend Requests</div>
+                    <div class="confidence-badge" style="background: #00ff00;">92%</div>
+                    <div class="ai-analysis">AI: Strong positive patterns</div>
+                </div>
+                
+                <div class="evidence-card">
+                    <div class="evidence-type">📸 Media Files</div>
+                    <div class="evidence-title">Video Evidence Collection</div>
+                    <div class="confidence-badge" style="background: #00ccff;">87%</div>
+                    <div class="ai-analysis">AI: Clear documentation verified</div>
+                </div>
+
+                <div class="evidence-card">
+                    <div class="evidence-type">📝 Documents</div>
+                    <div class="evidence-title">Legal Correspondence</div>
+                    <div class="confidence-badge" style="background: #ffaa00;">78%</div>
+                    <div class="ai-analysis">AI: Strong legal foundation</div>
+                </div>
+
+                <div class="evidence-card">
+                    <div class="evidence-type">🔊 Audio</div>
+                    <div class="evidence-title">Phone Conversations</div>
+                    <div class="confidence-badge" style="background: #00ff00;">95%</div>
+                    <div class="ai-analysis">AI: High credibility score</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/battle-animations.js"></script>
+</body>
+</html>
