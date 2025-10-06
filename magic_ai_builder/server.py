@@ -21,6 +21,11 @@ def create_app(config: Optional[BuilderConfig] = None, config_path: Optional[str
     def index():
         return render_template("index.html", config=asdict(cfg))
 
+    @app.route("/arena")
+    def arena():
+        # Serve the AMENEO Arena page
+        return render_template("arena.html")
+
     @app.post("/api/build/gradle")
     def api_build_gradle():
         data = request.json or {}
