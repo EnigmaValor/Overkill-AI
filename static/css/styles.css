@@ -1,12 +1,362 @@
-* { box-sizing: border-box; }
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 0; padding: 0; background: #0b0f19; color: #e6e8ee; }
-header { padding: 24px; text-align: center; background: linear-gradient(135deg, #3a0ca3 0%, #0b7285 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-h1 { margin: 0 0 8px; font-size: 28px; }
-main { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; padding: 24px; }
-.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-label { display: block; margin: 8px 0; font-size: 14px; }
-input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #e6e8ee; }
-button { margin-top: 8px; padding: 10px 14px; border: 0; border-radius: 8px; background: #4c6ef5; color: white; cursor: pointer; }
-button:hover { background: #4263eb; }
-pre { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; overflow-x: auto; }
-footer { padding: 16px; text-align: center; opacity: 0.7; }
+/* Quantum Theme CSS */
+:root {
+    /* Quantum Color Palette */
+    --quantum-dark: #0f0f23;
+    --quantum-darker: #1a1a2e;
+    --quantum-blue: #16213e;
+    --neon-cyan: #00ffff;
+    --neon-pink: #ff00ff;
+    --neon-purple: #8a2be2;
+    --plasma-green: #00ff88;
+    
+    /* Gradients */
+    --quantum-gradient: linear-gradient(135deg, var(--quantum-dark), var(--quantum-blue));
+    --neon-gradient: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+    --plasma-gradient: linear-gradient(45deg, var(--neon-purple), var(--plasma-green));
+    
+    /* Text colors */
+    --quantum-text-primary: #e6e8ee;
+    --quantum-text-secondary: rgba(230, 232, 238, 0.7);
+    --quantum-text-glow: #00ffff;
+}
+
+* { 
+    box-sizing: border-box; 
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background: var(--quantum-gradient);
+    color: var(--quantum-text-primary);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Quantum background animation */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, var(--neon-cyan) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, var(--neon-pink) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, var(--plasma-green) 0%, transparent 50%);
+    opacity: 0.1;
+    animation: quantum-pulse 6s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes quantum-pulse {
+    0% { opacity: 0.05; transform: scale(1); }
+    100% { opacity: 0.15; transform: scale(1.1); }
+}
+header { 
+    padding: 24px; 
+    text-align: center; 
+    background: var(--neon-gradient);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+    border-bottom: 1px solid var(--neon-cyan);
+    position: relative;
+    z-index: 10;
+}
+h1 { 
+    margin: 0 0 8px; 
+    font-size: 28px; 
+    color: var(--quantum-text-primary);
+    text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+    animation: quantum-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes quantum-glow {
+    0% { text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan); }
+    100% { text-shadow: 0 0 30px var(--neon-pink), 0 0 60px var(--neon-pink); }
+}
+main { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 24px; 
+    padding: 32px 24px; 
+    position: relative;
+    z-index: 5;
+}
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 15px;
+    padding: 24px;
+    margin: 10px 0;
+    box-shadow: 
+        0 8px 32px rgba(0, 255, 255, 0.1),
+        0 0 0 1px rgba(0, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 255, 255, 0.1), 
+        transparent
+    );
+    transition: left 0.5s;
+}
+
+.card:hover {
+    border-color: var(--neon-pink);
+    box-shadow: 
+        0 12px 48px rgba(255, 0, 255, 0.15),
+        0 0 0 1px rgba(255, 0, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.card:hover::before {
+    left: 100%;
+}
+h2 {
+    color: var(--quantum-text-primary);
+    text-shadow: 0 0 10px var(--neon-cyan);
+    margin-top: 0;
+}
+
+label { 
+    display: block; 
+    margin: 12px 0 6px 0; 
+    font-size: 14px;
+    color: var(--quantum-text-secondary);
+    font-weight: 500;
+}
+input { 
+    width: 100%; 
+    padding: 12px 16px; 
+    border-radius: 10px; 
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    color: var(--quantum-text-primary);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 
+        0 0 0 2px rgba(0, 255, 255, 0.2),
+        0 0 20px rgba(0, 255, 255, 0.1),
+        inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+input::placeholder {
+    color: var(--quantum-text-secondary);
+    opacity: 0.7;
+}
+button { 
+    margin-top: 16px; 
+    padding: 12px 20px; 
+    border: 0; 
+    border-radius: 10px; 
+    background: var(--neon-gradient);
+    color: white; 
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+button:hover {
+    background: var(--plasma-gradient);
+    box-shadow: 0 6px 25px rgba(255, 0, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+button:active {
+    transform: translateY(0);
+}
+pre { 
+    background: rgba(0, 0, 0, 0.6); 
+    backdrop-filter: blur(10px);
+    padding: 16px; 
+    border-radius: 10px; 
+    overflow-x: auto;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    color: var(--plasma-green);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    white-space: pre-wrap;
+}
+
+footer { 
+    padding: 20px; 
+    text-align: center; 
+    color: var(--quantum-text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 255, 255, 0.1);
+    margin-top: 32px;
+}
+
+code {
+    background: rgba(0, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--neon-cyan);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+/* Additional quantum effects */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: rgba(255, 255, 255, 0.05);
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--neon-cyan);
+    transition: all 0.3s ease;
+}
+
+li:hover {
+    background: rgba(0, 255, 255, 0.1);
+    border-left-color: var(--neon-pink);
+    transform: translateX(5px);
+}
+
+/* Quantum scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neon-gradient);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--plasma-gradient);
+}
+
+/* Additional quantum enhancements */
+p {
+    color: var(--quantum-text-secondary);
+    line-height: 1.6;
+}
+
+/* Magic wand emoji enhancement */
+h1 {
+    position: relative;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 4px;
+    height: 4px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 10px var(--neon-cyan),
+        8px 8px 0 var(--neon-pink),
+        16px 16px 0 var(--plasma-green);
+    animation: quantum-sparkle 2s ease-in-out infinite;
+}
+
+@keyframes quantum-sparkle {
+    0%, 100% { opacity: 0.3; transform: translateY(-50%) scale(1); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
+}
+
+/* Form enhancement */
+form {
+    position: relative;
+}
+
+form::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: var(--neon-gradient);
+    border-radius: 20px;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+form:hover::before {
+    opacity: 0.1;
+}
+
+/* Quantum card class for external use */
+.quantum-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.quantum-card:hover {
+    border-color: var(--neon-pink);
+    box-shadow: 0 12px 48px rgba(255, 0, 255, 0.15);
+    transform: translateY(-2px);
+}
