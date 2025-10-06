@@ -1,0 +1,515 @@
+import { useState, useEffect } from 'react';
+
+const AdvancedPasswordManager = () => {
+  // Password input and strength
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [strength, setStrength] = useState(0);
+  const [strengthLabel, setStrengthLabel] = useState('');
+
+  // Password generation
+  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [length, setLength] = useState(12);
+  const [includeUppercase, setIncludeUppercase] = useState(true);
+  const [includeLowercase, setIncludeLowercase] = useState(true);
+  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeSymbols, setIncludeSymbols] = useState(true);
+
+  // Shamir Secret Sharing
+  const [shamirShares, setShamirShares] = useState<string[]>([]);
+  const [shamirThreshold, setShamirThreshold] = useState(3);
+  const [shamirTotal, setShamirTotal] = useState(5);
+
+  // Encryption
+  const [encryptedPassword, setEncryptedPassword] = useState('');
+  const [encryptionKey, setEncryptionKey] = useState('');
+
+  // Password requirements
+  const [requirements, setRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  });
+
+  // Evaluate password strength
+  useEffect(() => {
+    evaluatePasswordStrength();
+  }, [password]);
+
+  const evaluatePasswordStrength = () => {
+    const newRequirements = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+
+    setRequirements(newRequirements);
+
+    const fulfilled = Object.values(newRequirements).filter(Boolean).length;
+
+    if (fulfilled === 0) {
+      setStrength(0);
+      setStrengthLabel('');
+    } else if (fulfilled <= 1) {
+      setStrength(1);
+      setStrengthLabel('Very Weak');
+    } else if (fulfilled <= 2) {
+      setStrength(2);
+      setStrengthLabel('Weak');
+    } else if (fulfilled <= 3) {
+      setStrength(3);
+      setStrengthLabel('Medium');
+    } else if (fulfilled <= 4) {
+      setStrength(4);
+      setStrengthLabel('Strong');
+    } else {
+      setStrength(5);
+      setStrengthLabel('Very Strong');
+    }
+  };
+
+  // Generate a random password
+  const generatePassword = () => {
+    let charset = '';
+    if (includeUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (includeLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+    if (includeNumbers) charset += '0123456789';
+    if (includeSymbols) charset += '!@#$%^&*(),.?":{}|<>';
+
+    if (charset === '') {
+      setGeneratedPassword('');
+      return;
+    }
+
+    let newPassword = '';
+    for (let i = 0; i < length; i++) {
+      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    setGeneratedPassword(newPassword);
+    setPassword(newPassword);
+  };
+
+  // Simulate Shamir Secret Sharing
+  const generateShamirShares = () => {
+    if (!password) {
+      alert('Please enter a password first');
+      return;
+    }
+
+    if (shamirThreshold > shamirTotal) {
+      alert('Threshold cannot be greater than total shares');
+      return;
+    }
+
+    const shares = [];
+    for (let i = 1; i <= shamirTotal; i++) {
+      // In a real implementation, this would use actual Shamir's Secret Sharing algorithm
+      // For simulation, we'll create random shares with the password embedded
+      const share = `SHARE_${i}_${Math.random().toString(36).substring(2, 10)}_${password.substring(0, 3)}_${i}`;
+      shares.push(share);
+    }
+
+    setShamirShares(shares);
+  };
+
+  // Simulate encryption
+  const encryptPassword = () => {
+    if (!password || !encryptionKey) {
+      alert('Please enter both password and encryption key');
+      return;
+    }
+
+    // In a real implementation, this would use actual encryption
+    // For simulation, we'll create a scrambled version
+    let encrypted = '';
+    for (let i = 0; i < password.length; i++) {
+      const charCode = password.charCodeAt(i) + encryptionKey.charCodeAt(i % encryptionKey.length);
+      encrypted += String.fromCharCode(charCode);
+    }
+
+    // Base64 encode the result
+    setEncryptedPassword(btoa(encrypted));
+  };
+
+  // Copy to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+  };
+
+  // Clear all fields
+  const clearAll = () => {
+    setPassword('');
+    setGeneratedPassword('');
+    setShamirShares([]);
+    setEncryptedPassword('');
+    setEncryptionKey('');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Advanced Password Manager</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Securely generate, evaluate, and manage your passwords with advanced features
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Password Strength Section */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Password Strength Checker</h2>
+
+            <div className="mb-6">
+              <div className="flex items-center mb-2">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="bg-gray-200 hover:bg-gray-300 px-4 py-3 rounded-r-lg border border-l-0 border-gray-300"
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm font-medium text-gray-700">Password Strength</span>
+                  <span className="text-sm font-medium text-gray-700">{strengthLabel}</span>
+                </div>
+                <div className="flex space-x-1">
+                  {[1, 2, 3, 4, 5].map((bar) => (
+                    <div
+                      key={bar}
+                      className={`h-2 flex-1 rounded-full ${bar <= strength ?
+                        (bar <= 2 ? 'bg-red-500' : bar <= 3 ? 'bg-yellow-500' : 'bg-green-500') : 'bg-gray-200'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h3 className="font-medium text-gray-700 mb-2">Requirements:</h3>
+                <ul className="space-y-1">
+                  <li className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${requirements.length ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      {requirements.length && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm">At least 8 characters</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${requirements.uppercase ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      {requirements.uppercase && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm">At least one uppercase letter</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${requirements.lowercase ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      {requirements.lowercase && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm">At least one lowercase letter</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${requirements.number ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      {requirements.number && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm">At least one number</span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${requirements.special ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      {requirements.special && (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm">At least one special character</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => copyToClipboard(password)}
+                disabled={!password}
+                className={`flex-1 py-2 px-4 rounded-lg font-medium ${password ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+              >
+                Copy Password
+              </button>
+              <button
+                onClick={clearAll}
+                className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          {/* Password Generator Section */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Password Generator</h2>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password Length</label>
+              <div className="flex items-center">
+                <input
+                  type="range"
+                  min="6"
+                  max="30"
+                  value={length}
+                  onChange={(e) => setLength(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="ml-4 w-10 text-center font-medium">{length}</span>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Character Types</label>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="uppercase"
+                    checked={includeUppercase}
+                    onChange={() => setIncludeUppercase(!includeUppercase)}
+                    className="h-4 w-4 text-blue-600 rounded"
+                  />
+                  <label htmlFor="uppercase" className="ml-2 text-sm text-gray-700">Uppercase (A-Z)</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="lowercase"
+                    checked={includeLowercase}
+                    onChange={() => setIncludeLowercase(!includeLowercase)}
+                    className="h-4 w-4 text-blue-600 rounded"
+                  />
+                  <label htmlFor="lowercase" className="ml-2 text-sm text-gray-700">Lowercase (a-z)</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="numbers"
+                    checked={includeNumbers}
+                    onChange={() => setIncludeNumbers(!includeNumbers)}
+                    className="h-4 w-4 text-blue-600 rounded"
+                  />
+                  <label htmlFor="numbers" className="ml-2 text-sm text-gray-700">Numbers (0-9)</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="symbols"
+                    checked={includeSymbols}
+                    onChange={() => setIncludeSymbols(!includeSymbols)}
+                    className="h-4 w-4 text-blue-600 rounded"
+                  />
+                  <label htmlFor="symbols" className="ml-2 text-sm text-gray-700">Symbols (!@#$...)</label>
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <input
+                  type="text"
+                  value={generatedPassword}
+                  readOnly
+                  placeholder="Generated password will appear here"
+                  className="flex-1 p-3 border border-gray-300 rounded-l-lg bg-gray-100"
+                />
+                <button
+                  onClick={() => copyToClipboard(generatedPassword)}
+                  disabled={!generatedPassword}
+                  className={`px-4 py-3 rounded-r-lg ${generatedPassword ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={generatePassword}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg"
+            >
+              Generate Password
+            </button>
+          </div>
+
+          {/* Shamir Secret Sharing Section */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Shamir Secret Sharing</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Threshold (k)</label>
+              <input
+                type="number"
+                min="2"
+                max="10"
+                value={shamirThreshold}
+                onChange={(e) => setShamirThreshold(parseInt(e.target.value) || 2)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum number of shares needed to reconstruct the secret</p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Total Shares (n)</label>
+              <input
+                type="number"
+                min="2"
+                max="10"
+                value={shamirTotal}
+                onChange={(e) => setShamirTotal(parseInt(e.target.value) || 5)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+              <p className="text-xs text-gray-500 mt-1">Total number of shares to generate</p>
+            </div>
+
+            <button
+              onClick={generateShamirShares}
+              className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg mb-4"
+            >
+              Generate Shares
+            </button>
+
+            {shamirShares.length > 0 && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-2">Generated Shares</h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-lg">
+                  {shamirShares.map((share, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                      <span className="text-sm font-mono truncate">{share}</span>
+                      <button
+                        onClick={() => copyToClipboard(share)}
+                        className="ml-2 text-blue-500 hover:text-blue-700"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                          <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Encryption Section */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Password Encryption</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Encryption Key</label>
+              <input
+                type="password"
+                value={encryptionKey}
+                onChange={(e) => setEncryptionKey(e.target.value)}
+                placeholder="Enter encryption key"
+                className="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+
+            <button
+              onClick={encryptPassword}
+              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg mb-4"
+            >
+              Encrypt Password
+            </button>
+
+            {encryptedPassword && (
+              <div>
+                <h3 className="font-medium text-gray-700 mb-2">Encrypted Password</h3>
+                <div className="flex items-center mb-2">
+                  <input
+                    type="text"
+                    value={encryptedPassword}
+                    readOnly
+                    className="flex-1 p-2 border border-gray-300 rounded-lg bg-gray-100"
+                  />
+                  <button
+                    onClick={() => copyToClipboard(encryptedPassword)}
+                    className="ml-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <h3 className="font-medium text-gray-700 mb-2">Security Tips</h3>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2">✓</span>
+                  <span>Use unique passwords for each account</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2">✓</span>
+                  <span>Enable two-factor authentication where possible</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2">✓</span>
+                  <span>Store passwords securely using a password manager</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-2">✓</span>
+                  <span>Regularly update your passwords</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <footer className="mt-12 text-center text-gray-600 text-sm">
+          <p>This tool simulates advanced password management features. For production use, implement proper cryptographic libraries.</p>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default AdvancedPasswordManager;
