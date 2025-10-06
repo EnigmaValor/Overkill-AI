@@ -19,7 +19,10 @@ def create_app(config: Optional[BuilderConfig] = None, config_path: Optional[str
 
     @app.route("/")
     def index():
-        return render_template("index.html", config=asdict(cfg))
+        return render_template("index.html", config=asdict(cfg), active="home")
+    @app.route("/guide")
+    def guide():
+        return render_template("guide.html", config=asdict(cfg), active="guide")
 
     @app.post("/api/build/gradle")
     def api_build_gradle():

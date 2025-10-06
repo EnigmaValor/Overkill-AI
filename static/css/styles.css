@@ -10,3 +10,15 @@ button { margin-top: 8px; padding: 10px 14px; border: 0; border-radius: 8px; bac
 button:hover { background: #4263eb; }
 pre { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; overflow-x: auto; }
 footer { padding: 16px; text-align: center; opacity: 0.7; }
+
+/* Simple header nav */
+.nav { display: flex; gap: 12px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+.nav a { color: #e6e8ee; opacity: 0.8; text-decoration: none; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+.nav a:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.nav a.active { background: #4c6ef5; color: #fff; opacity: 1; border-color: transparent; }
+
+/* Guide page layout overrides */
+.guide { display: block; max-width: 1000px; margin: 0 auto; padding: 24px; }
+.guide .card { margin-bottom: 16px; }
+.muted { color: #b6bbc6; }
+code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 6px; }
