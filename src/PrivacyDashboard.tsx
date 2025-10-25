@@ -6,6 +6,7 @@ import { AIChatBot } from './components/AIChatBot';
 import { VPNManager } from './components/VPNManager';
 import { ThemeSelector } from './components/ThemeSelector';
 import { StatusIndicator } from './components/StatusIndicator';
+import { InstallerManager } from './components/InstallerManager';
 
 export interface PrivacyStatus {
   tor: boolean;
@@ -105,6 +106,7 @@ const PrivacyDashboard = () => {
     { id: 'dnscrypt', name: 'DNSCrypt', icon: '🔐' },
     { id: 'i2p', name: 'I2P', icon: '🌐' },
     { id: 'vpn', name: 'VPN/SPN', icon: '🛡️' },
+    { id: 'installer', name: 'Download', icon: '📥' },
     { id: 'settings', name: 'Settings', icon: '⚙️' }
   ];
 
@@ -207,6 +209,8 @@ const PrivacyDashboard = () => {
         return <I2PManager onStatusChange={(status) => updatePrivacyStatus('i2p', status)} theme={currentTheme} />;
       case 'vpn':
         return <VPNManager onStatusChange={(status) => updatePrivacyStatus('vpn', status)} theme={currentTheme} />;
+      case 'installer':
+        return <InstallerManager theme={currentTheme} />;
       case 'settings':
         return (
           <div className="space-y-6">
