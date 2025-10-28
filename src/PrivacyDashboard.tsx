@@ -5,6 +5,7 @@ import { I2PManager } from './components/I2PManager';
 import { AIChatBot } from './components/AIChatBot';
 import { VPNManager } from './components/VPNManager';
 import { ThemeSelector } from './components/ThemeSelector';
+import HackTheBoxTCMDK from './components/HackTheBoxTCM_DK';
 import { StatusIndicator } from './components/StatusIndicator';
 import { InstallerManager } from './components/InstallerManager';
 
@@ -107,6 +108,7 @@ const PrivacyDashboard = () => {
     { id: 'i2p', name: 'I2P', icon: '🌐' },
     { id: 'vpn', name: 'VPN/SPN', icon: '🛡️' },
     { id: 'installer', name: 'Download', icon: '📥' },
+    { id: 'htb_tcm_dk', name: 'HTB + TCM (DK)', icon: '🇩🇰' },
     { id: 'settings', name: 'Settings', icon: '⚙️' }
   ];
 
@@ -211,6 +213,8 @@ const PrivacyDashboard = () => {
         return <VPNManager onStatusChange={(status) => updatePrivacyStatus('vpn', status)} theme={currentTheme} />;
       case 'installer':
         return <InstallerManager theme={currentTheme} />;
+      case 'htb_tcm_dk':
+        return <HackTheBoxTCMDK theme={currentTheme} />;
       case 'settings':
         return (
           <div className="space-y-6">
