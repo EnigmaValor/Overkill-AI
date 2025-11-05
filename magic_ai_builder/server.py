@@ -21,6 +21,10 @@ def create_app(config: Optional[BuilderConfig] = None, config_path: Optional[str
     def index():
         return render_template("index.html", config=asdict(cfg))
 
+    @app.route("/guide")
+    def guide():
+        return render_template("guide.html", config=asdict(cfg))
+
     @app.post("/api/build/gradle")
     def api_build_gradle():
         data = request.json or {}

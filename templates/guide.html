@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloud Setup Builder - Build & Run Guide</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <style>
+      .prose h1 { font-size: 32px; margin: 0 0 12px; background: linear-gradient(90deg,#22d3ee,#a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800; }
+      .prose h2 { font-size: 22px; margin: 20px 0 8px; font-weight: 700; }
+      .prose pre { background: rgba(0,0,0,0.5); padding: 12px; border-radius: 10px; overflow-x: auto; }
+      .prose code { background: rgba(0,0,0,0.45); padding: 2px 6px; border-radius: 6px; }
+      .prose a { color: #22d3ee; text-decoration: underline; }
+      .prose ul { padding-left: 18px; }
+      .prose li { margin: 6px 0; }
+      .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+      .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+      .back-link { display: inline-block; margin-bottom: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🪄 Magic AI Builder</h1>
+      <p>Cloud Setup Builder - Build & Run Guide</p>
+    </header>
+
+    <main class="container">
+      <a class="back-link" href="/">← Back to dashboard</a>
+      <div class="panel prose">
+        <section>
+          <h2>1. Forudsætninger</h2>
+          <ul>
+            <li><strong>Node.js</strong> (v18+): <a href="https://nodejs.org/" target="_blank" rel="noreferrer">Download her</a></li>
+            <li><strong>npm</strong> eller <strong>yarn</strong>: Kommer med Node.js</li>
+            <li><strong>Multipass</strong> (til Linux VMs): <code>sudo snap install multipass</code></li>
+            <li><strong>Android Studio</strong> (til Android-udvikling): <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer">Download her</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>2. Klon og kør projektet</h2>
+          <pre><code># Klon repository
+git clone &lt;din-repo-url&gt;
+cd cloud-setup-builder
+
+# Installer afhængigheder
+npm install
+
+# Start udviklingsserveren
+npm run dev
+</code></pre>
+        </section>
+
+        <section>
+          <h2>3. Byg til produktion</h2>
+          <pre><code># Byg projektet
+npm run build
+
+# Start produktionsserver
+npm start
+</code></pre>
+        </section>
+
+        <section>
+          <h2>4. Konfigurer Multipass til Linux-udvikling</h2>
+          <pre><code># Opret en ny Ubuntu VM
+multipass launch --name ubuntu-dev --mem 4G --disk 40G
+
+# Adgang til VM
+multipass shell ubuntu-dev
+
+# Installer afhængigheder i VM
+sudo apt update
+sudo apt install -y build-essential git python3
+</code></pre>
+        </section>
+
+        <section>
+          <h2>5. Konfigurer Android Studio</h2>
+          <ol>
+            <li>Åbn Android Studio</li>
+            <li>Gå til <code>Tools &gt; SDK Manager</code></li>
+            <li>Installer:
+              <ul>
+                <li>Android SDK Platform-Tools</li>
+                <li>NDK (Native Development Kit)</li>
+                <li>Emulator</li>
+              </ul>
+            </li>
+            <li>Opret en virtuel enhed i AVD Manager</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>6. Byg dine projekter</h2>
+          <p>I applikationen kan du:</p>
+          <ul>
+            <li>Oprette nye projekter (Android/Linux/Hybrid)</li>
+            <li>Generere kode med AI</li>
+            <li>Bygge og deploye direkte fra UI</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>7. Byg ISO/APK</h2>
+          <p><strong>Til Linux:</strong></p>
+          <pre><code>multipack build --format iso --output my-app.iso
+</code></pre>
+          <p><strong>Til Android:</strong></p>
+          <pre><code>./gradlew assembleRelease
+</code></pre>
+        </section>
+
+        <section>
+          <h2>8. Kør i produktion</h2>
+          <pre><code># Stop udviklingsserver (Ctrl+C)
+# Start produktionsserver
+npm start
+</code></pre>
+          <p>Applikationen vil nu køre på <code>http://localhost:3000</code></p>
+        </section>
+
+        <section>
+          <h2>Tips til optimal brug</h2>
+          <ul>
+            <li>Brug "Guide"-tabben for trin-for-trin opsætning</li>
+            <li>Generer kode med AI ved at beskrive din app i "AI"-tabben</li>
+            <li>Overvåg build-metrics i realtid på dashboardet</li>
+            <li>Brug Multipass til at teste Linux-applikationer i isolerede miljøer</li>
+          </ul>
+          <p class="mt-4" style="opacity:.8;font-size:12px;font-style:italic">Har du problemer med installationen? Tjek "Guide"-tabben i applikationen for detaljerede instruktioner med kommandoer og fejlfinding.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <small>Config: <code id="config-info"></code></small>
+    </footer>
+    <script>
+      window.__CONFIG__ = {{ config | tojson | safe }};
+      document.getElementById('config-info').textContent = JSON.stringify(window.__CONFIG__ || {}, null, 0);
+    </script>
+  </body>
+</html>
