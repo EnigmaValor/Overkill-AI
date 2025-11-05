@@ -1,0 +1,38 @@
+:root {--quantum-blue:#1a1a2e;--neon-purple:#8a2be2;--electric-cyan:#00ffff;--plasma-pink:#ff00ff}
+body{background:linear-gradient(135deg,var(--quantum-blue),#16213e);color:#fff;font-family:Arial,Helvetica,sans-serif;margin:0;padding:24px}
+.hero-section{text-align:center;padding:100px 20px;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;margin:16px auto;max-width:1100px;border:1px solid var(--electric-cyan)}
+.quantum-title{font-size:4rem;background:linear-gradient(45deg,var(--electric-cyan),var(--plasma-pink));-webkit-background-clip:text;background-clip:text;color:transparent;animation:glow 2s ease-in-out infinite alternate;margin:0 0 8px}
+.tagline{opacity:.9;margin:0 0 16px}
+@keyframes glow{from{text-shadow:0 0 20px var(--electric-cyan)}to{text-shadow:0 0 30px var(--plasma-pink),0 0 40px var(--neon-purple)}}
+.cta-buttons{display:flex;gap:12px;justify-content:center}
+.btn{padding:12px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;cursor:pointer}
+.quantum-btn{background:linear-gradient(45deg,#00ffff,#ff00ff);border:none;padding:15px 30px;border-radius:25px;color:#fff;font-weight:700;animation:pulse-glow 2s infinite;cursor:pointer;transition:all .3s ease}
+.quantum-btn:hover{transform:translateY(-3px);animation:none;box-shadow:0 10px 25px rgba(255,0,255,.5)}
+.plasma-btn{background:linear-gradient(45deg,#8a2be2,#00ffff);border:none;padding:15px 30px;border-radius:25px;color:#fff;font-weight:700;transition:all .3s ease}
+.plasma-btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,255,255,.3)}
+.quantum-dashboard{max-width:1200px;margin:24px auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.profile-card,.bot-card,.battle-arena,.evidence-manager{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px}
+.level-badge{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;margin-bottom:12px}
+.badge-icon{font-size:28px}
+.level-text{font-weight:800;letter-spacing:.08em}
+.user-stats{display:flex;gap:12px}
+.stat{flex:1;background:rgba(0,0,0,.25);border-radius:12px;padding:12px;text-align:center}
+.stat-value{font-size:20px;font-weight:800}
+.stat-label{opacity:.8}
+.bots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.bot-header{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.bot-avatar{font-size:24px}
+.bot-name{font-weight:700}
+.bot-actions{display:flex;gap:8px;flex-wrap:wrap}
+.action-btn{padding:8px 12px;border-radius:10px;border:0;background:#4c6ef5;color:#fff;cursor:pointer}
+.action-btn:hover{background:#4263eb}
+.battle-arena .battle-header{display:flex;align-items:center;justify-content:space-between}
+.battle-log{margin-top:10px;height:220px;overflow:auto;background:rgba(0,0,0,.25);border-radius:10px;padding:10px}
+.battle-round{padding:8px;border-bottom:1px solid rgba(255,255,255,.08)}
+@keyframes pulse-glow{0%{box-shadow:0 0 5px #00ffff}50%{box-shadow:0 0 20px #ff00ff,0 0 30px #8a2be2}100%{box-shadow:0 0 5px #00ffff}}
+@keyframes level-up{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.level-up-animation{animation:level-up .5s ease-in-out}
+.xp-bar{width:100%;height:10px;background:rgba(255,255,255,.2);border-radius:5px;overflow:hidden}
+.xp-progress{height:100%;background:linear-gradient(90deg,#00ffff,#ff00ff);border-radius:5px;transition:width .5s ease-in-out}
+
+@keyframes slideIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
