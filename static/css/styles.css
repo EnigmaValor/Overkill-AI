@@ -10,3 +10,34 @@ button { margin-top: 8px; padding: 10px 14px; border: 0; border-radius: 8px; bac
 button:hover { background: #4263eb; }
 pre { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px; overflow-x: auto; }
 footer { padding: 16px; text-align: center; opacity: 0.7; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .quantum-dashboard {
+        padding: 10px;
+    }
+    
+    .bots-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .quantum-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        margin: 20px 10px;
+        padding: 50px 20px;
+    }
+    
+    .battle-log {
+        font-size: 14px;
+    }
+}
