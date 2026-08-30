@@ -21,7 +21,7 @@ class VoiceRecorder(private val context: Context) {
         require(recorder == null) { "recording already active" }
         val dir = File(context.cacheDir, "voice").apply { mkdirs() }
         val file = File(dir, "voice_${System.currentTimeMillis()}.m4a")
-        val r = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else @Suppress("DEPRECATION") MediaRecorder()
+        val r = if (Build.VERSION.SDK_INT >= 31) MediaRecorder(context) else legacyRecorder()
         r.setAudioSource(MediaRecorder.AudioSource.MIC)
         r.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         r.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -73,4 +73,7 @@ class VoiceRecorder(private val context: Context) {
 
     @Synchronized
     fun isRecording(): Boolean = recorder != null
+
+    @Suppress("DEPRECATION")
+    private fun legacyRecorder(): MediaRecorder = MediaRecorder()
 }

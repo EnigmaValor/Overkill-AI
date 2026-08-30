@@ -24,5 +24,8 @@ object DeviceInfo {
     }
 
     private fun versionCode(pkg: android.content.pm.PackageInfo): Long =
-        if (Build.VERSION.SDK_INT >= 28) pkg.longVersionCode else @Suppress("DEPRECATION") pkg.versionCode.toLong()
+        if (Build.VERSION.SDK_INT >= 28) pkg.longVersionCode else legacyVersionCode(pkg)
+
+    @Suppress("DEPRECATION")
+    private fun legacyVersionCode(pkg: android.content.pm.PackageInfo): Long = pkg.versionCode.toLong()
 }

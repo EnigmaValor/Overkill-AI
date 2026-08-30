@@ -61,7 +61,7 @@ class AgentJobService : Service() {
         val netText = if (net.connected) "Network: ${net.type} (${if (net.validated) "validated" else "connected"})" else "Network: offline"
 
         val settings = SettingsStore(this)
-        val secure = SecureStorage(this, KeystoreBlobCipher(this))
+        val secure = SecureStorage(this, KeystoreBlobCipher())
         val apiKey = secure.get(SecretNames.GROQ_API_KEY)
         var groqText = "Groq: no API key configured"
         if (apiKey != null) {

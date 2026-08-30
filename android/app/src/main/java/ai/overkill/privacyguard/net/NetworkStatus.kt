@@ -15,9 +15,9 @@ object NetworkStatus {
         val cm = context.getSystemService(ConnectivityManager::class.java)
         val network = cm?.activeNetwork
         val caps = network?.let { cm.getNetworkCapabilities(it) }
-        val connected = caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
-            network != null
-        val validated = connected &&
+        val connected = network != null && caps != null &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val validated = caps != null &&
             caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         val type = when {
             caps == null -> "none"

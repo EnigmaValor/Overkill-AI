@@ -166,7 +166,7 @@ class NativeBridge(
             return
         }
         val provider = services.groqProvider()
-        val listener = ChatBridgeListener(bus, requestId)
+        val listener = ChatBridgeListener(bus, requestId) { chatCalls.remove(requestId) }
         val call = provider.chat(requestId, msgs, options, listener)
         chatCalls[requestId] = call
     }
@@ -311,7 +311,12 @@ class NativeBridge(
     }
 }
 
-private class ChatBridgeListener(private val bus: BridgeEventBus, private val requestId: String) : ai.overkill.privacyguard.llm.ChatListener {
+private class ChatBridgeListener(
+    private val bus: BridgeEventBus,
+    private val requestId: String,
+    private val onFinished: () -> Unit
+) : ai.overkill.privacyguard.llm.ChatListener {
+
     override fun onToken(text: String) {
         bus.event(requestId, "token", JSONObject().put("content", text))
     }
@@ -327,6 +332,7 @@ private class ChatBridgeListener(private val bus: BridgeEventBus, private val re
     override fun onDone(finishReason: String, usage: JSONObject?) {
         val payload = JSONObject().put("finishReason", finishReason)
         if (usage != null) payload.put("usage", usage)
+        onFinished()
         bus.event(requestId, "done", payload)
     }
 
@@ -335,6 +341,7 @@ private class ChatBridgeListener(private val bus: BridgeEventBus, private val re
         err.put("kind", error.kind)
         err.put("message", error.message)
         err.put("retryable", error.retryable)
+        onFinished()
         bus.event(requestId, "error", JSONObject().put("error", err))
     }
 }

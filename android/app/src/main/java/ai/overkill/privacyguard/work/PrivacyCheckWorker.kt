@@ -26,7 +26,7 @@ class PrivacyCheckWorker(appContext: Context, params: WorkerParameters) : Worker
             val netText = if (net.connected) "Connected (${net.type})${if (net.validated) ", validated" else ""}" else "Offline"
 
             val settings = SettingsStore(context)
-            val secure = SecureStorage(context, KeystoreBlobCipher(context))
+            val secure = SecureStorage(context, KeystoreBlobCipher())
             val apiKey = secure.get(SecretNames.GROQ_API_KEY)
 
             var groqText = "Groq: no API key"
