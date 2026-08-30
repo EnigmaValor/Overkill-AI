@@ -8,6 +8,9 @@ import { ThemeSelector } from './components/ThemeSelector';
 import HackTheBoxTCMDK from './components/HackTheBoxTCM_DK';
 import { StatusIndicator } from './components/StatusIndicator';
 import { InstallerManager } from './components/InstallerManager';
+import { GroqSettings } from './components/GroqSettings';
+import AdvancedPasswordManager from './AdvancedPasswordManager';
+import { kvGet, kvPut } from './lib/native';
 
 export interface PrivacyStatus {
   tor: boolean;
@@ -83,6 +86,19 @@ const PrivacyDashboard = () => {
   });
   const [showAIBot, setShowAIBot] = useState(false);
 
+  // Restore + persist theme selection (encrypted store on Android, localStorage in browser).
+  useEffect(() => {
+    void (async () => {
+      const name = await kvGet('theme').catch(() => null);
+      const saved = themes.find((t) => t.name === name);
+      if (saved) setCurrentTheme(saved);
+    })();
+  }, []);
+
+  useEffect(() => {
+    void kvPut('theme', currentTheme.name).catch(() => undefined);
+  }, [currentTheme]);
+
   // Update overall security status
   useEffect(() => {
     const activeServices = [privacyStatus.tor, privacyStatus.dnscrypt, privacyStatus.i2p, privacyStatus.vpn];
@@ -108,6 +124,7 @@ const PrivacyDashboard = () => {
     { id: 'i2p', name: 'I2P', icon: '🌐' },
     { id: 'vpn', name: 'VPN/SPN', icon: '🛡️' },
     { id: 'installer', name: 'Download', icon: '📥' },
+    { id: 'vault', name: 'Vault', icon: '🔑' },
     { id: 'htb_tcm_dk', name: 'HTB + TCM (DK)', icon: '🇩🇰' },
     { id: 'settings', name: 'Settings', icon: '⚙️' }
   ];
@@ -213,6 +230,8 @@ const PrivacyDashboard = () => {
         return <VPNManager onStatusChange={(status) => updatePrivacyStatus('vpn', status)} theme={currentTheme} />;
       case 'installer':
         return <InstallerManager theme={currentTheme} />;
+      case 'vault':
+        return <AdvancedPasswordManager theme={currentTheme} />;
       case 'htb_tcm_dk':
         return <HackTheBoxTCMDK theme={currentTheme} />;
       case 'settings':
@@ -223,6 +242,7 @@ const PrivacyDashboard = () => {
               currentTheme={currentTheme} 
               onThemeChange={setCurrentTheme} 
             />
+            <GroqSettings theme={currentTheme} key={activeTab} />
             <div className={`rounded-xl p-6 ${currentTheme.cyberpunk ? 'bg-gradient-to-r from-gray-900/20 to-slate-900/20 border border-gray-500/30' : 'bg-white shadow-lg'}`}>
               <h3 className={`text-xl font-bold mb-4 ${currentTheme.cyberpunk ? 'text-cyan-400' : 'text-gray-800'}`}>
                 About PrivacyGuard Pro
@@ -328,7 +348,9 @@ const PrivacyDashboard = () => {
       {showAIBot && (
         <AIChatBot 
           onClose={() => setShowAIBot(false)} 
+          onOpenSettings={() => setActiveTab('settings')}
           theme={currentTheme}
+          getPrivacyStatus={() => privacyStatus}
         />
       )}
     </div>

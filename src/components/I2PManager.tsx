@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Theme } from '../PrivacyDashboard';
+import { PlatformNotice } from './PlatformNotice';
 
 interface I2PManagerProps {
   onStatusChange: (status: boolean) => void;
@@ -22,7 +23,7 @@ export const I2PManager = ({ onStatusChange, theme }: I2PManagerProps) => {
     http: false,
     irc: false
   });
-  const [selectedSite, setSelectedSite] = useState('');
+  const [, setSelectedSite] = useState('');
 
   const i2pSites: I2PSite[] = [
     {
@@ -101,6 +102,7 @@ export const I2PManager = ({ onStatusChange, theme }: I2PManagerProps) => {
 
   return (
     <div className="space-y-6">
+        <PlatformNotice theme={theme} />
       {/* Connection Status */}
       <div className={`rounded-xl p-6 ${theme.cyberpunk ? 'bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30' : 'bg-white shadow-lg'}`}>
         <div className="flex items-center justify-between mb-4">

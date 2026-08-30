@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output (dist/ is intentionally tracked by this repo's convention)
+build/
+out/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Android port
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/www/
+android/local.properties
+android/.kotlin/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Theme } from '../PrivacyDashboard';
 
 interface InstallerManagerProps {
@@ -15,7 +15,6 @@ interface InstallerInfo {
 }
 
 export const InstallerManager = ({ theme }: InstallerManagerProps) => {
-  const [showInstaller, setShowInstaller] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<'windows' | 'linux' | 'macos'>('windows');
   const [installProgress, setInstallProgress] = useState(0);
   const [isInstalling, setIsInstalling] = useState(false);

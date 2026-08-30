@@ -1,4 +1,18 @@
-# Advanced Password Manager
+# PrivacyGuard Pro — Overkill-AI (Android / GrapheneOS port)
+
+Privacy suite (Tor/DNSCrypt/I2P/VPN dashboard, Groq AI agent, encrypted vault) that
+runs as an installable **arm64-v8a Android app** on GrapheneOS **without Google Play
+Services**. Groq is the primary LLM backend; secrets live in the Android Keystore.
+
+- Full audit, architecture decision, feature matrix and port report: **[ANDROID_PORT.md](ANDROID_PORT.md)**
+- Reproducible build: `./scripts/build-android.sh` (or GitHub Actions workflow)
+- Install the debug APK built by CI / locally, add your `gsk_…` key in Settings → Groq.
+
+The repository also contains the original desktop bundle documented below.
+
+---
+
+## Advanced Password Manager (original web component)
 
 En kraftfuld React-komponent til passwordhåndtering med avancerede sikkerhedsfunktioner.
 

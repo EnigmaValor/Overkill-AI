@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Theme } from '../PrivacyDashboard';
+import { PlatformNotice } from './PlatformNotice';
 
 interface DNSCryptManagerProps {
   onStatusChange: (status: boolean) => void;
@@ -88,6 +89,7 @@ export const DNSCryptManager = ({ onStatusChange, theme }: DNSCryptManagerProps)
 
   return (
     <div className="space-y-6">
+        <PlatformNotice theme={theme} />
       {/* Status and Controls */}
       <div className={`rounded-xl p-6 ${theme.cyberpunk ? 'bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-500/30' : 'bg-white shadow-lg'}`}>
         <div className="flex items-center justify-between mb-4">

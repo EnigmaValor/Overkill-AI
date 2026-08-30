@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PrivacyGuard Pro</string>
+    <string name="channel_privacy_name">Privacy checks</string>
+    <string name="channel_privacy_desc">Background security and Groq connectivity results</string>
+    <string name="channel_agent_name">Agent jobs</string>
+    <string name="channel_agent_desc">Long-running assistant jobs</string>
+</resources>

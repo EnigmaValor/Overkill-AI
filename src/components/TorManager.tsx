@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Theme } from '../PrivacyDashboard';
+import { PlatformNotice } from './PlatformNotice';
 
 interface TorManagerProps {
   onStatusChange: (status: boolean) => void;
@@ -10,13 +11,13 @@ export const TorManager = ({ onStatusChange, theme }: TorManagerProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [circuitInfo, setCircuitInfo] = useState<string[]>([]);
-  const [onionSites, setOnionSites] = useState([
+  const onionSites = [
     { name: 'DuckDuckGo', url: 'https://3g2upl4pq6kufc4m.onion' },
     { name: 'Facebook', url: 'https://facebookwkhpilnemxj7asaniu7vnjjbiltxjqhye3mhbsjg7ms5xr5yd.onion' },
     { name: 'ProPublica', url: 'https://www.propub3r6espa33w.onion' },
     { name: 'The New York Times', url: 'https://www.nytimes3xbfgragh.onion' }
-  ]);
-  const [selectedSite, setSelectedSite] = useState('');
+  ];
+  const [, setSelectedSite] = useState('');
 
   useEffect(() => {
     onStatusChange(isConnected);
@@ -50,6 +51,7 @@ export const TorManager = ({ onStatusChange, theme }: TorManagerProps) => {
 
   return (
     <div className="space-y-6">
+        <PlatformNotice theme={theme} />
       {/* Connection Status */}
       <div className={`rounded-xl p-6 ${theme.cyberpunk ? 'bg-gradient-to-r from-orange-900/20 to-red-900/20 border border-orange-500/30' : 'bg-white shadow-lg'}`}>
         <div className="flex items-center justify-between mb-4">
