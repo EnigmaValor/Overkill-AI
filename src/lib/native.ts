@@ -426,12 +426,12 @@ export interface PasswordOptions {
 export async function generatePassword(options: PasswordOptions): Promise<string> {
   if (isNative()) return callNative<string>('generatePassword', [
     options.length ?? 16,
-    {
+    JSON.stringify({
       uppercase: !!options.uppercase,
       lowercase: !!options.lowercase,
       numbers: !!options.numbers,
       symbols: !!options.symbols
-    }
+    })
   ])
   let charset = ''
   if (options.uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

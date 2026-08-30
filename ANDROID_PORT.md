@@ -207,15 +207,35 @@ CI (`.github/workflows/android-build.yml`) performs the identical sequence on
 
 | Area | Test | Status |
 |---|---|---|
-| SSE parsing | `SseEventParserTest` (4 cases incl. `[DONE]`, comments, whitespace) | ✅ (CI run below) |
-| Retry policy | `RetryPolicyTest` (auth no-retry, rate-limit retry, Retry-After, backoff cap) | ✅ |
-| Crypto | `AesGcmCipherTest` (roundtrip, AAD mismatch, tamper, IV uniqueness) | ✅ |
-| Groq provider | `GroqProviderTest` (streaming tokens + tool-call delta merge; 401 → auth error, 1 request; 500 → retry → success) | ✅ |
-| Web build | `tsc && vite build` (strict TS, 47 modules) | ✅ local |
-| Android compile/unit tests | `./gradlew :app:testDebugUnitTest` | ✅ in CI (see run below) |
-| APK assemble (debug+release, arm64-v8a) | `./gradlew :app:assembleDebug :app:assembleRelease` | ✅ in CI |
-| Groq live connectivity | Requires a real user key on-device (key validation logic unit-tested; endpoint probing in-app via “Test connection”) | ⚠ user step |
-| Permission denial / network loss / timeout / malformed response | Mapped errors surfaced in chat UI and settings; retry policy unit-tested | ⚠ device UX test |
+| Web/agent build | `tsc && vite build` (strict TS, 47 modules) | ✅ verified locally |
+| Agent loop (TS) | `npm test` → streaming turns, tool call execution, tool result reporting, final message | ✅ verified locally (15/15) |
+| Memory tools (TS) | `npm test` → save/recall/missing via encrypted KV | ✅ verified locally |
+| Shamir GF(256) (TS) | `npm test` → n shares, k-threshold reconstruction, <k fails (bug found & fixed: per-byte coefficients are now drawn once, not per share) | ✅ verified locally |
+| AES-256-GCM vault (TS) | `npm test` → PGV1 format, round trip, wrong key rejected, tamper rejected | ✅ verified locally |
+| SSE parsing (Kotlin) | `SseEventParserTest` — data/whitespace/`[DONE]`/comments | ⏳ to run in CI |
+| Retry policy (Kotlin) | `RetryPolicyTest` — auth no-retry, rate-limit retry, Retry-After, backoff cap | ⏳ to run in CI |
+| AES-GCM (Kotlin) | `AesGcmCipherTest` — roundtrip, AAD mismatch, tamper, IV uniqueness | ⏳ to run in CI |
+| Groq provider (Kotlin) | `GroqProviderTest` (MockWebServer) — streamed tokens + tool-call delta merge; 401 → auth error, one request; 500 → retry → success | ⏳ to run in CI |
+| Android compile + APK | `./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease` | ⏳ CI (see blocker below) |
+| Groq live connectivity | Requires a real user key on-device (endpoint probing in-app via “Test connection”) | ⚠ user step |
+| Permission denial / network loss / timeout / malformed response | Mapped errors surfaced in chat UI and settings | ⚠ device UX test |
+
+**CI blocker (external):** the GitHub App token attached to this workspace is *not*
+granted the `workflows` permission, so pushes that create/update
+`.github/workflows/*` are rejected and workflow dispatch is 403 (`gh repo fork`
+is also 403). The exact CI workflow is provided in **`ci/android-build.yml`**
+(build → wrapper → JVM unit tests → debug+release APKs → artifact upload) and
+kept at `.github/workflows/android-build.yml` in the working tree. **To
+activate: grant `workflows` permission to the GitHub connection (or have the
+repo owner commit `ci/android-build.yml` to `.github/workflows/`) and push**;
+CI then runs the identical sequence and uploads the arm64-v8a APKs. The local
+JVM/Android build is likewise not possible in this sandbox (no JDK/Gradle/SDK
+and Maven/Google/dl.google hosts are network-blocked), so the Kotlin compiler
+verification must happen through that CI run. All Kotlin sources were
+additionally statically reviewed for the platform errors found in this pass
+(Keystore cipher constructor misuse, illegal expression annotations in
+`VoiceRecorder`/`DeviceInfo`, null-safe capability checks, missing
+`JSON.stringify` on the JS→native `generatePassword` options).
 
 ## 10. Known limitations & next steps
 
