@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "condition": "SELFTEST (pipeline check, NOT benchmark data)",
+    "model": "canned-responses",
+    "backend": "builtin",
+    "timestamp": "2026-08-30T20:16:29+00:00"
+  },
+  "aggregate": {
+    "n_tasks": 2,
+    "det_score_overall": 0.5,
+    "det_score_by_category": {
+      "selftest": 0.5
+    },
+    "judge_enabled": false,
+    "pass_rate": 0.5
+  },
+  "per_task": [
+    {
+      "id": "ST1",
+      "det_score": 0.0,
+      "checks_passed": [],
+      "checks_failed": [
+        "ST1-c1",
+        "ST1-c2"
+      ],
+      "category": "selftest"
+    },
+    {
+      "id": "ST2",
+      "det_score": 1.0,
+      "checks_passed": [
+        "ST2-c1",
+        "ST2-c2"
+      ],
+      "checks_failed": [],
+      "category": "selftest"
+    }
+  ]
+}

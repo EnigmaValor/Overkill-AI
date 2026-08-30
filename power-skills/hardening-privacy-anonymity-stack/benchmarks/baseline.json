@@ -1,0 +1,22 @@
+{
+  "skill": "hardening-privacy-anonymity-stack",
+  "condition": "baseline",
+  "model": null,
+  "status": "NOT_RUN",
+  "note": "Honest-zero policy: this file is populated ONLY by eval/run_eval.py with measured results. It is a deliberate null until a real model run happens. Do not fill by hand. Do not infer numbers from the skill author's expectations.",
+  "schema": {
+    "model": "string",
+    "backend": "string",
+    "timestamp": "ISO-8601",
+    "n_tasks": "int",
+    "det_score_overall": "float 0-1",
+    "det_score_by_category": {"<category>": "float 0-1"},
+    "judge_enabled": "bool",
+    "judge_mean_by_dimension": {"D-correctness": "float 0-2", "D-completeness": "float 0-2", "D-procedure": "float 0-2", "D-verification": "float 0-2", "D-calibration": "float 0-2", "D-safety": "float 0-2", "D-efficiency": "float 0-2"},
+    "judge_mean_overall": "float 0-2",
+    "pass_rate": "float 0-1",
+    "hallucination_flag_count": "int",
+    "per_task": [{"id": "string", "det_score": "float 0-1", "checks_passed": ["string"], "checks_failed": ["string"], "judge": "object or null"}]
+  },
+  "results": null
+}
