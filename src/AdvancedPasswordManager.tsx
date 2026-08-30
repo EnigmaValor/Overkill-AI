@@ -71,10 +71,19 @@ function utf8Decode(b: Uint8Array): string {
  * Each byte of the secret is a polynomial coefficient a0 over GF(256);
  * share i is the polynomial evaluated at x=i+1.
  */
-function makeShares(secret: string, threshold: number, total: number): string[] {
+export function makeShares(secret: string, threshold: number, total: number): string[] {
   if (threshold < 2 || threshold > 10) throw new Error('threshold must be 2..10');
   if (total < threshold || total > 10) throw new Error('total must be >= threshold and <= 10');
   const data = utf8Encode(secret);
+  // One polynomial per secret byte; coefficients are drawn ONCE so every share
+  // lies on the same polynomial (fresh coefficients per share would break
+  // reconstruction).
+  const coeffs: number[][] = [];
+  for (let bi = 0; bi < data.length; bi++) {
+    const row: number[] = [];
+    for (let j = 1; j < threshold; j++) row.push(randomBytes(1)[0]);
+    coeffs.push(row);
+  }
   const slices: Uint8Array[] = [];
   for (let x = 1; x <= total; x++) {
     const ys = new Uint8Array(data.length);
@@ -82,8 +91,7 @@ function makeShares(secret: string, threshold: number, total: number): string[] 
       let acc = data[bi];
       let xp = x;
       for (let j = 1; j < threshold; j++) {
-        const coeff = randomBytes(1)[0]; // a_j (fresh per byte; secure in practice for UI use)
-        acc ^= gfMul(coeff, xp);
+        acc ^= gfMul(coeffs[bi][j - 1], xp);
         xp = gfMul(xp, x);
       }
       ys[bi] = acc;
@@ -93,7 +101,7 @@ function makeShares(secret: string, threshold: number, total: number): string[] 
   return slices.map((ys, i) => `SS1:${i + 1}:${bytesToHex(ys)}`);
 }
 
-function reconstructSecret(shares: string[]): string {
+export function reconstructSecret(shares: string[]): string {
   const parsed = shares
     .map((s) => {
       const m = /^SS1:(\d+):([0-9a-fA-F]+)$/.exec(s.trim());
@@ -169,7 +177,7 @@ async function deriveKey(passphrase: string, salt: Uint8Array): Promise<CryptoKe
   );
 }
 
-async function encryptWithPassphrase(plaintext: string, passphrase: string): Promise<string> {
+export async function encryptWithPassphrase(plaintext: string, passphrase: string): Promise<string> {
   if (!plaintext || !passphrase) throw new Error('password and key required');
   if (typeof crypto.subtle === 'undefined') throw new Error('WebCrypto unavailable in this runtime');
   const salt = randomBytes(16);
@@ -183,7 +191,7 @@ async function encryptWithPassphrase(plaintext: string, passphrase: string): Pro
   return `PGV1:${bytesToBase64(salt)}:${bytesToBase64(iv)}:${bytesToBase64(new Uint8Array(ct))}`;
 }
 
-async function decryptWithPassphrase(ciphertext: string, passphrase: string): Promise<string> {
+export async function decryptWithPassphrase(ciphertext: string, passphrase: string): Promise<string> {
   const parts = ciphertext.trim().split(':');
   if (parts.length !== 4 || parts[0] !== 'PGV1') throw new Error('unsupported ciphertext format');
   const salt = base64ToBytes(parts[1]);
