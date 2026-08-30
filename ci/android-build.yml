@@ -1,0 +1,61 @@
+# Copy this file to .github/workflows/android-build.yml to enable CI.
+# The GitHub App token used to create this branch is not granted the
+# "workflows" permission, so the file could not be committed to that path.
+
+name: Android ARM64 Build
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build web UI (React → dist)
+        run: npm run build
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Gradle 8.2
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+          echo "/tmp/gradle-8.2/bin" >> "$GITHUB_PATH"
+
+      - name: Generate Gradle wrapper
+        working-directory: android
+        run: gradle wrapper --gradle-version 8.2 --distribution-type bin
+
+      - name: Unit tests (JVM / platform adaptations)
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest
+
+      - name: Assemble debug APK (arm64-v8a)
+        working-directory: android
+        run: ./gradlew :app:assembleDebug
+
+      - name: Assemble release APK (unsigned unless signing props given)
+        working-directory: android
+        run: ./gradlew :app:assembleRelease
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacyguard-pro-arm64-apks
+          path: |
+            android/app/build/outputs/apk/debug/*.apk
+            android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
