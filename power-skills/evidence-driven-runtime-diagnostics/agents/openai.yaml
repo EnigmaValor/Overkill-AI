@@ -1,0 +1,53 @@
+# Agent manifest for evidence-driven-runtime-diagnostics
+# Declarative metadata for host systems that discover or invoke skills via manifests.
+# The engine never parses this file at runtime; it documents the invocation contract.
+schema: agent-manifest/1.0
+skill:
+  name: evidence-driven-runtime-diagnostics
+  version: 1.0.0
+  entrypoint: scripts/diagnostic_engine.py
+  language: python
+  language_version: "3.11"
+  dependencies: standard-library-only
+  deterministic: true
+  offline: true
+  untrusted_inputs:
+    - logs[].message
+    - configuration
+    - recent_changes
+    - user_constraints
+  untrusted_input_policy: >
+    Untrusted fields influence execution only through pattern-dictionary matches.
+    Instruction-like content is quarantined (R-GLOBAL-QUAR-003) and never executed.
+invocation:
+  cli: python scripts/diagnostic_engine.py <incident.json>
+  stdin: unsupported
+  stdout: one JSON diagnostic output document, canonical form
+  exit_codes:
+    0: processing_status COMPLETED
+    1: processing_status FAILED (see error_flags)
+    2: usage error
+validation:
+  input: python scripts/validate_input.py <incident.json>
+  output: python scripts/validate_output.py <output.json>
+  test_suite: python scripts/run_tests.py
+capabilities:
+  - deterministic root-cause selection from a 14-entry failure-mode catalogue
+  - evidence ledger with integrity states VERIFIED, UNVERIFIED, CORRUPTED, DUPLICATE,
+    CONTRADICTORY, MALICIOUS_CONTENT
+  - duplicate detection, signal and event-order contradiction detection
+  - prompt-injection quarantine of log content
+  - integer scoring with declared formula and thresholds
+  - causal-link grouping and MULTIPLE_CONCURRENT_FAILURES classification
+  - remediation planning with forbidden actions and STOP_EXECUTION_NOW escalation
+  - eight-check self-audit with one self-correction attempt
+  - byte-identical canonical JSON output for identical normalized input
+hard_limits:
+  - diagnoses are limited to the embedded catalogue; everything else is UNKNOWN_ROOT_CAUSE
+  - timestamps without a UTC offset are never ordered or filled
+  - the engine never executes remediation; operators do
+  - no network access, no wall-clock reads, no randomness, no locale-sensitive ordering
+trusted_computing_base:
+  - Python 3.11 interpreter and its standard library
+  - the files of this package
+  - the caller's JSON serialization of the incident

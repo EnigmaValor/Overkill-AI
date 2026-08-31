@@ -1,0 +1,31 @@
+{
+  "$id": "evidence-driven-runtime-diagnostics/diagnostic-output.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Diagnostic output contract",
+  "description": "Structure returned by the engine for every run. COMPLETED outputs always carry a full diagnosis block. FAILED outputs carry processing_status FAILED, populated error_flags, and the decision_trace up to the failing stage. Missing information appears only as null, UNKNOWN, or a defined error flag; it is never substituted with an assumption.",
+  "type": "object",
+  "required": ["incident_id", "schema_version", "processing_status", "decision_trace", "error_flags"],
+  "properties": {
+    "incident_id": {"type": "string", "description": "Echo of input incident_id, or the literal UNKNOWN when the input could not be parsed."},
+    "schema_version": {"const": "1.0.0"},
+    "processing_status": {"enum": ["COMPLETED", "FAILED"]},
+    "primary_diagnosis": {"type": ["string", "null"], "enum": [null, "DNS_RESOLUTION_FAILURE", "DEPENDENCY_MISSING", "PERMISSION_DENIED", "CONFIGURATION_SCHEMA_MISMATCH", "ARCHITECTURE_INCOMPATIBILITY", "PORT_CONFLICT", "MEMORY_EXHAUSTION", "THERMAL_LIMIT_VIOLATION", "EXECUTION_PROVIDER_UNAVAILABLE", "CPU_FALLBACK_VIOLATION", "CLOCK_SKEW", "CERTIFICATE_VALIDATION_FAILURE", "MULTIPLE_CONCURRENT_FAILURES", "UNKNOWN_ROOT_CAUSE"]},
+    "contributing_diagnoses": {"type": "array", "items": {"type": "string"}, "description": "Additional qualified modes, deterministic order (score desc, tie-break priority asc, id byte order). Empty for UNKNOWN_ROOT_CAUSE."},
+    "confidence_score": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Integer per the declared formula; null only for UNKNOWN_ROOT_CAUSE."},
+    "confidence_label": {"enum": ["HIGH", "MEDIUM", "LOW", "INSUFFICIENT"]},
+    "evidence_ledger": {"type": "array", "items": {"type": "object", "required": ["log_id", "timestamp_normalized", "timezone_status", "source", "severity", "integrity_status_input", "integrity_status_effective", "used_in_scoring", "matched_pattern_ids"], "properties": {"log_id": {"type": "string"}, "timestamp_normalized": {"type": ["string", "null"], "description": "UTC-normalized ISO-8601 or null when no timezone is known or parsing failed. Null is never filled by guessing."}, "timezone_status": {"enum": ["KNOWN", "MISSING", "INVALID"]}, "source": {"type": "string"}, "severity": {"type": "string"}, "integrity_status_input": {"enum": ["VERIFIED", "UNVERIFIED", "CORRUPTED", "DUPLICATE", "CONTRADICTORY", "MALICIOUS_CONTENT"]}, "integrity_status_effective": {"enum": ["VERIFIED", "UNVERIFIED", "CORRUPTED", "DUPLICATE", "CONTRADICTORY", "MALICIOUS_CONTENT"], "description": "Input status, possibly downgraded by engine rules; never upgraded."}, "used_in_scoring": {"type": "boolean"}, "matched_pattern_ids": {"type": "array", "items": {"type": "string"}}}}},
+    "rejected_hypotheses": {"type": "array", "items": {"type": "object", "required": ["mode", "status", "score", "reason", "missing_groups"], "properties": {"mode": {"type": "string"}, "status": {"enum": ["BELOW_REQUIRED", "EXCLUDED", "BELOW_THRESHOLD"]}, "score": {"type": ["integer", "null"]}, "reason": {"type": "string"}, "missing_groups": {"type": "array", "items": {"type": "string"}, "description": "Human-readable required-group descriptions that did not match."}}}},
+    "contradictions": {"type": "array", "items": {"type": "object", "required": ["kind", "log_ids", "detail"], "properties": {"kind": {"enum": ["SIGNAL_CONFLICT", "EVENT_ORDER_CONFLICT"]}, "log_ids": {"type": "array", "items": {"type": "string"}}, "detail": {"type": "string"}}}},
+    "quarantined_content": {"type": "array", "items": {"type": "object", "required": ["log_id", "matched_patterns", "note"], "properties": {"log_id": {"type": "string"}, "matched_patterns": {"type": "array", "items": {"type": "string"}}, "note": {"type": "string", "description": "Always states that the embedded instruction was not executed."}}}},
+    "unknown_fields": {"type": "array", "items": {"type": "string"}, "description": "Input fields outside the documented set, preserved and never used."},
+    "missing_required_evidence": {"type": "array", "items": {"type": "string"}, "description": "Smallest missing items that would allow further discrimination, ordered deterministically."},
+    "remediation_plan": {"type": "array", "items": {"type": "object", "required": ["step_id", "ordering", "mode", "action", "action_kind"], "properties": {"step_id": {"type": "string"}, "ordering": {"type": "integer"}, "mode": {"type": "string"}, "action": {"type": "string"}, "action_kind": {"enum": ["STOP_EXECUTION_NOW", "INVESTIGATE", "RECONFIGURE", "VERIFY", "COLLECT_EVIDENCE"]}}}},
+    "forbidden_actions": {"type": "array", "items": {"type": "string"}},
+    "immediate_execution_stop": {"type": "boolean", "description": "True when any selected remediation step has action_kind STOP_EXECUTION_NOW."},
+    "timeline_resolved": {"type": "boolean", "description": "False when any order-relevant timestamp lacks a timezone or verified sources assert conflicting event order."},
+    "decision_trace": {"type": "array", "items": {"type": "object", "required": ["seq", "stage", "rule_id", "detail", "refs"], "properties": {"seq": {"type": "integer"}, "stage": {"type": "string", "description": "One of the 18 pipeline stage names."}, "rule_id": {"type": ["string", "null"]}, "detail": {"type": "string"}, "refs": {"type": "array", "items": {"type": "string"}}}}},
+    "audit_results": {"type": "array", "items": {"type": "object", "required": ["check_id", "status", "detail"], "properties": {"check_id": {"enum": ["AUD-001", "AUD-002", "AUD-003", "AUD-004", "AUD-005", "AUD-006", "AUD-007", "AUD-008"]}, "status": {"enum": ["PASS", "FAIL"]}, "detail": {"type": "string"}}}},
+    "error_flags": {"type": "array", "items": {"enum": ["INPUT_SCHEMA_INVALID", "UNSUPPORTED_SCHEMA_VERSION", "TIMELINE_UNRESOLVED", "SELF_CORRECTION_FAILED", "PIPELINE_ERROR"]}, "description": "Empty array means no error flags raised. TIMELINE_UNRESOLVED is compatible with COMPLETED."},
+    "canonical_sha256": {"type": ["string", "null"], "description": "SHA-256 over the canonical JSON of the output with canonical_sha256 removed and audit_results emptied. Present only when processing_status is COMPLETED."}
+  }
+}

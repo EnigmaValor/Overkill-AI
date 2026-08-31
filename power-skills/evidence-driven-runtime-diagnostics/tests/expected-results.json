@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "description": "Deterministic expectations for run_tests.py. Every COMPLETED case is additionally checked for: audit AUD-001..AUD-008 all PASS, output schema validity, and byte-identical determinism across two runs.",
+  "expectations": {
+    "TEST_A": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "CPU_FALLBACK_VIOLATION",
+      "contributing_includes": ["EXECUTION_PROVIDER_UNAVAILABLE"],
+      "retained_excludes": ["THERMAL_LIMIT_VIOLATION", "MEMORY_EXHAUSTION"],
+      "confidence_score": 95,
+      "confidence_label": "HIGH",
+      "immediate_execution_stop": true,
+      "timeline_resolved": true,
+      "rejected_status": {"THERMAL_LIMIT_VIOLATION": "BELOW_REQUIRED"},
+      "forbidden_action_substrings": ["Continue execution on CPU"]
+    },
+    "TEST_B": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "DNS_RESOLUTION_FAILURE",
+      "retained_excludes": ["DEPENDENCY_MISSING"],
+      "confidence_score": 65,
+      "confidence_label": "LOW",
+      "immediate_execution_stop": false,
+      "timeline_resolved": true,
+      "rejected_status": {"DEPENDENCY_MISSING": "BELOW_REQUIRED"}
+    },
+    "TEST_C": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "DNS_RESOLUTION_FAILURE",
+      "quarantine_log_ids": ["L4"],
+      "ledger_effective": {"L4": "MALICIOUS_CONTENT", "L5": "DUPLICATE"},
+      "confidence_score": 65,
+      "immediate_execution_stop": false,
+      "timeline_resolved": true
+    },
+    "TEST_D": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "UNKNOWN_ROOT_CAUSE",
+      "flags_include": ["TIMELINE_UNRESOLVED"],
+      "timeline_resolved": false,
+      "ledger_effective": {"L1": "CONTRADICTORY", "L2": "CONTRADICTORY", "L3": "VERIFIED"},
+      "contradiction_kinds": ["EVENT_ORDER_CONFLICT"],
+      "missing_evidence_any": ["Timezone offsets"],
+      "rejected_status": {"CPU_FALLBACK_VIOLATION": "BELOW_REQUIRED", "EXECUTION_PROVIDER_UNAVAILABLE": "BELOW_REQUIRED"}
+    },
+    "TEST_E": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "UNKNOWN_ROOT_CAUSE",
+      "confidence_score": null,
+      "confidence_label": "INSUFFICIENT",
+      "ledger_effective": {"L3": "CORRUPTED"},
+      "missing_evidence_any": ["No failure-mode signature matched", "restore or re-verify"]
+    },
+    "TEST_F": {
+      "processing_status": "COMPLETED",
+      "primary_diagnosis": "MULTIPLE_CONCURRENT_FAILURES",
+      "contributing_order": ["MEMORY_EXHAUSTION", "PORT_CONFLICT"],
+      "confidence_score": 65,
+      "immediate_execution_stop": false,
+      "timeline_resolved": true
+    },
+    "TEST_G": {
+      "processing_status": "FAILED",
+      "flags_include": ["INPUT_SCHEMA_INVALID"]
+    },
+    "TEST_G2": {
+      "processing_status": "FAILED",
+      "flags_include": ["UNSUPPORTED_SCHEMA_VERSION"]
+    }
+  }
+}

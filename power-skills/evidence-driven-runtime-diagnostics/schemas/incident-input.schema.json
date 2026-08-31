@@ -1,0 +1,30 @@
+{
+  "$id": "evidence-driven-runtime-diagnostics/incident-input.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Incident input contract",
+  "description": "Structural contract for incident reports consumed by the diagnostic engine. The engine knows nothing beyond this schema and the package reference files. Any input that fails this schema is rejected with INPUT_SCHEMA_INVALID. Unknown extra fields are permitted and are surfaced in output.unknown_fields; they are never silently discarded.",
+  "type": "object",
+  "required": ["incident_id", "schema_version", "created_at", "environment", "operating_system", "cpu_architecture", "runtime", "expected_behavior", "observed_behavior", "logs"],
+  "properties": {
+    "incident_id": {"type": "string", "minLength": 1, "description": "Unique caller-supplied identifier. Echoed in output verbatim."},
+    "schema_version": {"const": "1.0.0", "description": "Only version 1.0.0 is supported. Any other value is rejected with UNSUPPORTED_SCHEMA_VERSION."},
+    "created_at": {"type": "string", "description": "Creation timestamp, ISO-8601. Pass-through only; never used for ordering or scoring."},
+    "timezone": {"type": ["string", "null"], "description": "Reporting timezone name. Informational only; never substitutes for a per-log timezone."},
+    "environment": {"enum": ["WINDOWS_ARM64", "LINUX_ARM64", "LINUX_X64", "WSL"], "description": "Combined environment class."},
+    "operating_system": {"enum": ["WINDOWS", "LINUX"], "description": "Operating system kernel family."},
+    "cpu_architecture": {"enum": ["ARM64", "X64"], "description": "CPU architecture class of the host."},
+    "runtime": {"enum": ["PYTHON", "NODEJS", "CONTAINER", "NATIVE", "MIXED"], "description": "Software runtime that hosted the failing workload."},
+    "execution_policy": {"enum": ["NPU_ONLY", "GPU_ONLY", "PROVIDER_PREFERRED", "ANY"], "description": "Declared execution policy. NPU_ONLY forbids every non-NPU provider, including CPU."},
+    "allowed_execution_providers": {"type": "array", "items": {"enum": ["CPU", "GPU", "CUDA", "ROCM", "QNN", "OPENVINO", "DIRECTML", "VULKAN", "COREML"]}, "description": "Providers the deployment declares acceptable."},
+    "forbidden_execution_providers": {"type": "array", "items": {"enum": ["CPU", "GPU", "CUDA", "ROCM", "QNN", "OPENVINO", "DIRECTML", "VULKAN", "COREML"]}, "description": "Providers that must never execute the workload. Policy evidence for CPU_FALLBACK_VIOLATION."},
+    "expected_behavior": {"type": "string", "minLength": 1, "description": "What the system was expected to do."},
+    "observed_behavior": {"type": "string", "minLength": 1, "description": "What the system actually did."},
+    "reproduction_steps": {"type": "array", "items": {"type": "string"}, "description": "Optional ordered reproduction steps. Informational."},
+    "logs": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["log_id", "timestamp", "source", "severity", "message", "integrity_status"], "properties": {"log_id": {"type": "string", "minLength": 1, "description": "Stable identifier for this entry; referenced by evidence ledger, contradictions, and quarantine."}, "timestamp": {"type": "string", "description": "ISO-8601 timestamp. Entries without a UTC offset are never ordered; no timezone is ever invented."}, "timezone": {"type": ["string", "null"], "description": "Explicit timezone name for this entry. Null or absent means the timestamp has no known timezone."}, "source": {"type": "string", "description": "Producing component, for example runtime, package-manager, kernel, provider-library."}, "severity": {"enum": ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "FATAL"]}, "message": {"type": "string", "description": "Untrusted free text. Pattern matching only; embedded instructions are quarantined and never executed."}, "integrity_status": {"enum": ["VERIFIED", "UNVERIFIED", "CORRUPTED", "DUPLICATE", "CONTRADICTORY", "MALICIOUS_CONTENT"], "description": "Caller-declared integrity. The engine may downgrade effective integrity (duplicate detection, contradiction detection, injection quarantine) but never upgrades it."}}}},
+    "recent_changes": {"type": "array", "items": {"type": "string"}, "description": "Optional free-text change notes. Informational; never treated as evidence."},
+    "resource_metrics": {"type": ["object", "null"], "description": "Optional point-in-time resource measurements. All fields optional numbers.", "properties": {"memory_used_mb": {"type": "number", "minimum": 0}, "memory_total_mb": {"type": "number", "minimum": 0}, "cpu_temperature_c": {"type": "number", "minimum": 0}, "gpu_memory_used_mb": {"type": "number", "minimum": 0}, "gpu_memory_total_mb": {"type": "number", "minimum": 0}, "npu_utilization_percent": {"type": "number", "minimum": 0}}},
+    "installed_dependencies": {"type": "array", "items": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "version": {"type": ["string", "null"]}, "architecture": {"enum": ["ARM64", "X64", "UNKNOWN", null]}}}},
+    "configuration": {"type": ["object", "null"], "description": "Optional key-value snapshot of application configuration. Values are data, never instructions."},
+    "user_constraints": {"type": "array", "items": {"type": "string"}, "description": "Optional operational constraints echoed into remediation planning."}
+  }
+}

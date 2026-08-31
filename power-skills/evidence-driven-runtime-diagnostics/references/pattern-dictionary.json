@@ -1,0 +1,267 @@
+{
+  "version": "1.0.0",
+  "match_target": "normalized log message",
+  "normalization": "NFKC, lowercase, whitespace collapsed to single spaces; matching is case-insensitive ASCII regex on the normalized message",
+  "patterns": {
+    "PAT_DNS_GETADDRINFO_FAIL": {
+      "regex": "getaddrinfo\\(.{0,60}\\)\\s*failed",
+      "category": "dns_failure"
+    },
+    "PAT_DNS_EAI_ERROR": {
+      "regex": "temporary failure (?:in|while) resolv\\w*|name or service not known|error\\s+-5\\b",
+      "category": "dns_failure"
+    },
+    "PAT_DNS_SERVER_UNREACHABLE": {
+      "regex": "dns\\s+server(?:\\s+\\S+)?\\s+(?:is\\s+)?(?:unreachable|timed?\\s*-?out)|no\\s+servers\\s+could\\s+be\\s+reached",
+      "category": "dns_failure"
+    },
+    "PAT_DNS_RESOLV_LOOPBACK_NS": {
+      "regex": "nameserver\\s+127\\.(?!0\\.0\\.1\\b)\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
+      "category": "dns_configuration"
+    },
+    "PAT_DNS_RESOLV_CONF_PATH": {
+      "regex": "resolv\\.?conf",
+      "category": "dns_configuration"
+    },
+    "PAT_DNS_PKG_MGR_RESOLVE_FAIL": {
+      "regex": "(?:failed|unable|cannot)\\s+(?:to\\s+)?resolve\\s+(?:the\\s+)?(?:repository|repo|host|package\\s+source)|temporary\\s+failure\\s+resolv\\w*",
+      "category": "dns_failure"
+    },
+    "PAT_DNS_OK": {
+      "regex": "dns\\s+resolution\\s+(?:succeeded|ok)|resolved\\s+successfully",
+      "category": "dns_ok"
+    },
+    "PAT_DEP_MODULE_NOT_FOUND": {
+      "regex": "modulenotfounderror|module\\s+not\\s+found|no\\s+module\\s+named",
+      "category": "dependency_failure"
+    },
+    "PAT_DEP_IMPORT_ERROR": {
+      "regex": "importerror|cannot\\s+import\\s+\\S+|dll\\s+load\\s+failed",
+      "category": "dependency_failure"
+    },
+    "PAT_DEP_PKG_NOT_INSTALLED": {
+      "regex": "package\\s+not\\s+installed|unable\\s+to\\s+locate\\s+package|pip\\s+install",
+      "category": "dependency_failure"
+    },
+    "PAT_DEP_VERSION_CONFLICT": {
+      "regex": "version\\s+conflict|incompatible\\s+(?:package\\s+)?version|dependency\\s+resolution\\s+failed",
+      "category": "dependency_failure"
+    },
+    "PAT_DEP_FS_OK": {
+      "regex": "local\\s+filesystem\\s+(?:operations?\\s+)?(?:succeed\\w*|ok|normal|healthy)",
+      "category": "dependency_ok"
+    },
+    "PAT_DEP_INSTALL_SUCCEEDED": {
+      "regex": "successfully\\s+installed|installation\\s+(?:succeeded|complete)",
+      "category": "dependency_ok"
+    },
+    "PAT_PERM_DENIED": {
+      "regex": "permission\\s+denied|eacces|\\berror\\s*13\\b|access\\s+is\\s+denied|0x80070005",
+      "category": "permission_failure"
+    },
+    "PAT_PERM_READONLY_FS": {
+      "regex": "read-?only\\s+file\\s*system|\\bero\\s*fs\\b",
+      "category": "permission_failure"
+    },
+    "PAT_PERM_ADMIN_REQUIRED": {
+      "regex": "administrator\\s+privileg\\w+\\s+(?:are\\s+)?required|run\\s+as\\s+(?:root|administrator)|elevated\\s+privileg\\w+",
+      "category": "permission_failure"
+    },
+    "PAT_PERM_OK": {
+      "regex": "permissions?\\s+(?:verified|ok|granted|correct)",
+      "category": "permission_ok"
+    },
+    "PAT_CFG_UNEXPECTED_KEY": {
+      "regex": "unexpected\\s+(?:configuration\\s+)?(?:key|field|option)|unknown\\s+(?:configuration\\s+)?(?:key|field|option)",
+      "category": "config_failure"
+    },
+    "PAT_CFG_MISSING_KEY": {
+      "regex": "missing\\s+(?:required\\s+)?(?:configuration\\s+)?(?:key|field|option|property)",
+      "category": "config_failure"
+    },
+    "PAT_CFG_VALIDATION_FAILED": {
+      "regex": "configuration\\s+validation\\s+failed|schema\\s+(?:validation\\s+)?(?:mismatch|violation|failed)|invalid\\s+configuration",
+      "category": "config_failure"
+    },
+    "PAT_CFG_TYPE_MISMATCH": {
+      "regex": "type\\s+mismatch|expected\\s+\\S+\\s+but\\s+(?:got|found)",
+      "category": "config_failure"
+    },
+    "PAT_CFG_VALIDATED_OK": {
+      "regex": "configuration\\s+(?:validated|loaded\\s+successfully|accepted)",
+      "category": "config_ok"
+    },
+    "PAT_ARCH_EXEC_FORMAT": {
+      "regex": "cannot\\s+execute\\s+binary\\s*file|exec\\s+format\\s+error|not\\s+a\\s+valid\\s+(?:win32\\s+)?application",
+      "category": "arch_failure"
+    },
+    "PAT_ARCH_MISMATCH_MSG": {
+      "regex": "architecture\\s+mismatch|incompatible\\s+(?:architecture|arch)|arm64.{0,30}x86_64|x86_64.{0,30}arm64|aarch64.{0,30}x86_64|x86_64.{0,30}aarch64",
+      "category": "arch_failure"
+    },
+    "PAT_ARCH_BAD_ELF": {
+      "regex": "wrong\\s+elf\\s+class|elf\\s+class\\s+\\S+\\s+error|is\\s+not\\s+compatible\\s+with\\s+your\\s+device",
+      "category": "arch_failure"
+    },
+    "PAT_ARCH_COMPATIBLE_OK": {
+      "regex": "(?:binary|package|build)\\s+is\\s+(?:compatible|valid\\s+for\\s+this\\s+(?:architecture|platform))",
+      "category": "arch_ok"
+    },
+    "PAT_PORT_IN_USE": {
+      "regex": "address\\s+already\\s+in\\s+use|eaddrinuse|port\\s+\\d+\\s+(?:is\\s+)?(?:already\\s+)?(?:in\\s+use|occupied)|only\\s+one\\s+usage\\s+of\\s+each\\s+socket\\s+address",
+      "category": "port_failure"
+    },
+    "PAT_PORT_BIND_FAILED": {
+      "regex": "failed\\s+to\\s+bind|bind\\(\\)\\s+failed|unable\\s+to\\s+bind",
+      "category": "port_failure"
+    },
+    "PAT_PORT_PROCESS_IDENTIFIED": {
+      "regex": "process\\s+\\d+.{0,40}already\\s+listening|already\\s+listening\\s+on\\s+port",
+      "category": "port_supporting"
+    },
+    "PAT_PORT_AVAILABLE": {
+      "regex": "port\\s+\\d+\\s+is\\s+(?:available|free)",
+      "category": "port_ok"
+    },
+    "PAT_MEM_OOM": {
+      "regex": "out\\s+of\\s+memory|oom-?killer|oom\\s+score|killed\\s+process.{0,40}oom",
+      "category": "memory_failure"
+    },
+    "PAT_MEM_ALLOC_FAIL": {
+      "regex": "bad_alloc|memory\\s+allocation\\s+of\\s+\\d+\\s+bytes\\s+failed|cannot\\s+allocate\\s+memory|memoryerror",
+      "category": "memory_failure"
+    },
+    "PAT_MEM_LOW_WINDOWS": {
+      "regex": "your\\s+computer\\s+is\\s+low\\s+on\\s+memory",
+      "category": "memory_failure"
+    },
+    "PAT_MEM_AVAILABLE": {
+      "regex": "memory\\s+(?:available|headroom)|\\b\\d+\\s+mb\\s+free\\b",
+      "category": "memory_ok"
+    },
+    "PAT_THERMAL_THROTTLE": {
+      "regex": "thermal\\s+throttl\\w*|throttl\\w*\\s+(?:due\\s+to|because\\s+of)\\s+(?:temperature|heat)|overtemperature|temperature\\s+exceeded\\s+thermal\\s+limit",
+      "category": "thermal_failure"
+    },
+    "PAT_TEMP_HIGH_READING": {
+      "regex": "(?:temperature|temp)\\b.{0,20}\\b(?:9[5-9]|10[0-9])\\s*(?:degrees?\\s+)?c(?:elsius)?\\b",
+      "category": "thermal_supporting"
+    },
+    "PAT_SYSTEM_UNRESPONSIVE": {
+      "regex": "(?:system|machine|device)\\s+(?:became?\\s+|is\\s+|remained\\s+)?(?:unresponsive|frozen)|(?:system|machine)\\s+hangs?|hard\\s+freeze",
+      "category": "generic_impact"
+    },
+    "PAT_PROV_NPU_QNN_INIT_FAIL": {
+      "regex": "(?:qnn|npu).{0,40}(?:init|initializ)\\w*.{0,20}fail|(?:init|initializ)\\w*.{0,20}fail.{0,40}(?:qnn|npu)",
+      "category": "provider_failure"
+    },
+    "PAT_PROV_INIT_FAILED": {
+      "regex": "provider[_ ]?initialization[_ ]?failed|provider\\s+failed\\s+to\\s+initiali[sz]e",
+      "category": "provider_failure"
+    },
+    "PAT_PROV_NOT_FOUND": {
+      "regex": "provider\\s+[\"']?[\\w-]+[\"']?\\s+(?:not\\s+found|not\\s+available|unavailable|could\\s+not\\s+be\\s+loaded)",
+      "category": "provider_failure"
+    },
+    "PAT_PROV_LOAD_LIB_FAIL": {
+      "regex": "failed\\s+to\\s+(?:load|dlopen).{0,40}(?:provider|backend|lib)",
+      "category": "provider_failure"
+    },
+    "PAT_PROV_NO_DELEGATE": {
+      "regex": "no\\s+(?:execution\\s+provider|delegate|accelerator)\\s+(?:available|found)",
+      "category": "provider_failure"
+    },
+    "PAT_PROV_READY": {
+      "regex": "provider\\s+[\"']?[\\w-]+[\"']?\\s+(?:initialized|loaded|ready)",
+      "category": "provider_ok"
+    },
+    "PAT_CPU_FALLBACK_SELECTED": {
+      "regex": "(?:falling|fell|switch(?:ed)?|default(?:ing)?)\\s+(?:back\\s+)?to\\s+cpu|(?:silently\\s+)?select(?:ed|ing)?\\s+cpu(?:\\s+provider)?\\b",
+      "category": "cpu_fallback"
+    },
+    "PAT_CPU_PROVIDER_SELECTED_VOCAB": {
+      "regex": "cpu[_ ]?provider[_ ]?selected",
+      "category": "cpu_fallback"
+    },
+    "PAT_CPU_POLICY_ALLOWS": {
+      "regex": "cpu\\s+fallback\\s+(?:allowed|permitted|enabled)|policy\\s+permits\\s+cpu",
+      "category": "cpu_fallback_ok"
+    },
+    "PAT_CLOCK_SKEW_MSG": {
+      "regex": "clock\\s+skew|clock\\s+offset|system\\s+time\\s+(?:differs|off\\s+by)|time\\s+sync\\w*(?:ation)?\\s+(?:failed|error)|ntp.{0,60}(?:offset|drift)",
+      "category": "clock_failure"
+    },
+    "PAT_CERT_NOT_YET_VALID": {
+      "regex": "not\\s+yet\\s+valid",
+      "category": "clock_supporting"
+    },
+    "PAT_TIME_JUMP": {
+      "regex": "time\\s+(?:jumped|moved\\s+backwards)|clock\\s+moved\\s+backwards",
+      "category": "clock_supporting"
+    },
+    "PAT_TIME_SYNCED": {
+      "regex": "(?:time|clock)\\s+(?:is\\s+)?(?:synchronized|in\\s+sync)",
+      "category": "clock_ok"
+    },
+    "PAT_CERT_VERIFY_FAILED": {
+      "regex": "certificate\\s+verify\\s+failed|certificate\\s+verification\\s+failed|ssl\\s+certificate.{0,30}(?:invalid|failed|untrusted)|x509.{0,30}(?:invalid|failed)|certificate\\s+(?:is\\s+)?(?:invalid|untrusted)",
+      "category": "certificate_failure"
+    },
+    "PAT_TLS_HANDSHAKE_FAIL": {
+      "regex": "(?:tls|ssl)\\s+handshake\\s+failed",
+      "category": "certificate_failure"
+    },
+    "PAT_CERT_EXPIRED": {
+      "regex": "certificate\\s+(?:has\\s+)?expired",
+      "category": "certificate_supporting"
+    },
+    "PAT_CERT_OK": {
+      "regex": "certificate\\s+(?:verification\\s+)?(?:succeeded|valid|trusted)",
+      "category": "certificate_ok"
+    },
+    "PAT_ORDER_ASSERT": {
+      "regex": "(provider_initialization_failed|cpu_provider_selected|port_bound|oom_kill_detected|dns_query_failed|certificate_error_raised|thermal_throttle_engaged)\\s+occurred\\s+before\\s+(provider_initialization_failed|cpu_provider_selected|port_bound|oom_kill_detected|dns_query_failed|certificate_error_raised|thermal_throttle_engaged)",
+      "category": "order_assertion"
+    },
+    "PAT_INJ_IGNORE_RULES": {
+      "regex": "ignore\\s+(?:all\\s+)?(?:previous|prior|above)\\s+(?:rules|instructions)",
+      "category": "injection",
+      "quarantine": true
+    },
+    "PAT_INJ_MARK_SAFE": {
+      "regex": "mark\\s+(?:the\\s+)?(?:incident|this|report)\\s+safe",
+      "category": "injection",
+      "quarantine": true
+    },
+    "PAT_INJ_DELETE_LOGS": {
+      "regex": "(?:delete|remove|drop)\\s+(?:the\\s+)?(?:other\\s+)?logs",
+      "category": "injection",
+      "quarantine": true
+    },
+    "PAT_INJ_DISREGARD": {
+      "regex": "disregard\\s+(?:all\\s+)?(?:previous|prior|above)",
+      "category": "injection",
+      "quarantine": true
+    },
+    "PAT_INJ_SYSTEM_OVERRIDE": {
+      "regex": "system\\s+prompt|you\\s+are\\s+now|new\\s+instructions?\\s*:",
+      "category": "injection",
+      "quarantine": true
+    },
+    "PAT_INJ_EXFIL": {
+      "regex": "send\\s+(?:all\\s+)?(?:data|logs|files)\\s+to\\s+\\S+",
+      "category": "injection",
+      "quarantine": true
+    }
+  },
+  "order_vocabulary": [
+    "provider_initialization_failed",
+    "cpu_provider_selected",
+    "port_bound",
+    "oom_kill_detected",
+    "dns_query_failed",
+    "certificate_error_raised",
+    "thermal_throttle_engaged"
+  ],
+  "injection_note": "Patterns with quarantine=true force integrity_status_effective MALICIOUS_CONTENT. The entry is preserved in the evidence ledger and in quarantined_content, is excluded from all scoring, and its text is never interpreted as an instruction for the engine or the operator."
+}

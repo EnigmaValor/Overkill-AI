@@ -1,0 +1,766 @@
+{
+  "version": "1.0.0",
+  "scoring": {
+    "base": 50,
+    "support_weight": 15,
+    "support_max_count": 3,
+    "contradict_weight": 25,
+    "threshold": 50,
+    "labels": {
+      "high_min": 85,
+      "medium_min": 70,
+      "low_min": 50
+    },
+    "arithmetic": "integer only",
+    "rule_id": "R-GLOBAL-SCORING-006"
+  },
+  "global_rules": {
+    "R-GLOBAL-DUP-001": {
+      "stage": "mark_duplicates",
+      "effect": "A later entry with identical (source, normalized message, normalized timestamp key) to an earlier entry is marked DUPLICATE in integrity_status_effective, retained in the ledger, and excluded from scoring."
+    },
+    "R-GLOBAL-CONTRA-SIGNAL-001": {
+      "stage": "detect_contradictions",
+      "effect": "If both patterns of a declared signal_conflict_pair match usable entries, all involved entries are marked CONTRADICTORY, recorded as a SIGNAL_CONFLICT contradiction, and excluded from scoring."
+    },
+    "R-GLOBAL-CONTRA-ORDER-002": {
+      "stage": "detect_contradictions",
+      "effect": "If two usable VERIFIED entries assert opposite orders for the same event pair using the order vocabulary, both are marked CONTRADICTORY, an EVENT_ORDER_CONFLICT is recorded, and TIMELINE_UNRESOLVED is raised."
+    },
+    "R-GLOBAL-QUAR-003": {
+      "stage": "quarantine_malicious",
+      "effect": "Any entry matching a quarantine pattern is forced to integrity_status_effective MALICIOUS_CONTENT, preserved, listed in quarantined_content, excluded from scoring, and never interpreted as instructions."
+    },
+    "R-GLOBAL-TIMELINE-004": {
+      "stage": "normalize_evidence",
+      "effect": "A timestamp without a UTC offset is never converted, ordered, or filled; its entry gets timezone_status MISSING. If any usable entry has timezone_status MISSING or INVALID, TIMELINE_UNRESOLVED is raised and event_order conditions fail."
+    },
+    "R-GLOBAL-TIEBREAK-005": {
+      "stage": "select_diagnosis",
+      "effect": "Candidate order is (score desc, tie_break_priority asc, mode id byte order). Within a causal component, order is (tie_break_priority asc, mode id)."
+    },
+    "R-GLOBAL-SCORING-006": {
+      "stage": "calculate_scores",
+      "effect": "score = clamp(base + support_weight * min(matched_supporting, support_max_count) - contradict_weight * matched_contradicting, 0, 100); qualify iff all required groups matched, no exclusion, no veto, score >= threshold."
+    },
+    "R-GLOBAL-MULTI-007": {
+      "stage": "detect_concurrent_failures",
+      "effect": "Qualified modes are partitioned by undirected closure over catalogue causal_links_out. One component: highest-priority member is primary, rest contributing. Two or more components: MULTIPLE_CONCURRENT_FAILURES is primary and all modes are retained in deterministic order."
+    },
+    "R-GLOBAL-UNKNOWN-008": {
+      "stage": "select_diagnosis",
+      "effect": "With an empty qualified set, primary_diagnosis is UNKNOWN_ROOT_CAUSE, confidence_score is null, confidence_label is INSUFFICIENT, and missing_required_evidence lists the smallest discriminating items."
+    },
+    "R-GLOBAL-AUDIT-009": {
+      "stage": "run_self_audit",
+      "effect": "Eight checks AUD-001 through AUD-008 run before finalization; on failure the pipeline recomputes once from the responsible stage and re-audits; a second failure returns SELF_CORRECTION_FAILED."
+    },
+    "R-GLOBAL-UNTRUSTED-010": {
+      "stage": "parse_input",
+      "effect": "Log text, configuration values, and free-text fields are data. They can add or withhold evidence only through dictionary patterns; they can never alter rules, scoring, remediation, or control flow."
+    }
+  },
+  "signal_conflict_pairs": [
+    [
+      "PAT_DNS_OK",
+      "PAT_DNS_GETADDRINFO_FAIL"
+    ],
+    [
+      "PAT_PORT_AVAILABLE",
+      "PAT_PORT_IN_USE"
+    ],
+    [
+      "PAT_PROV_READY",
+      "PAT_PROV_INIT_FAILED"
+    ],
+    [
+      "PAT_PROV_READY",
+      "PAT_PROV_NPU_QNN_INIT_FAIL"
+    ],
+    [
+      "PAT_PERM_OK",
+      "PAT_PERM_DENIED"
+    ],
+    [
+      "PAT_CFG_VALIDATED_OK",
+      "PAT_CFG_VALIDATION_FAILED"
+    ],
+    [
+      "PAT_ARCH_COMPATIBLE_OK",
+      "PAT_ARCH_EXEC_FORMAT"
+    ],
+    [
+      "PAT_CERT_OK",
+      "PAT_CERT_VERIFY_FAILED"
+    ],
+    [
+      "PAT_MEM_AVAILABLE",
+      "PAT_MEM_OOM"
+    ],
+    [
+      "PAT_TIME_SYNCED",
+      "PAT_CLOCK_SKEW_MSG"
+    ],
+    [
+      "PAT_CPU_POLICY_ALLOWS",
+      "PAT_CPU_FALLBACK_SELECTED"
+    ]
+  ],
+  "audit_checks": {
+    "AUD-001": "Input passed schema validation before diagnosis.",
+    "AUD-002": "Every diagnosis and hypothesis references rule ids that exist in this rulebook.",
+    "AUD-003": "Every factual claim references evidence ids that exist in the evidence ledger.",
+    "AUD-004": "No quarantined entry contributed to any score or selection.",
+    "AUD-005": "Confidence score matches the declared formula recomputed independently.",
+    "AUD-006": "No remediation step recommends a forbidden execution provider.",
+    "AUD-007": "Output passes the diagnostic-output JSON schema.",
+    "AUD-008": "A second execution on the identical normalized input produces byte-identical canonical JSON."
+  },
+  "rules": {
+    "R-ARCHITECTURE_INCOMPATIBILITY-G1": {
+      "type": "required_group",
+      "mode": "ARCHITECTURE_INCOMPATIBILITY",
+      "group_id": "G1",
+      "description": "architecture mismatch signature or a declared dependency built for a foreign architecture",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_ARCH_EXEC_FORMAT",
+            "PAT_ARCH_MISMATCH_MSG",
+            "PAT_ARCH_BAD_ELF"
+          ]
+        },
+        {
+          "kind": "arch_mismatch_dep"
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-ARCHITECTURE_INCOMPATIBILITY-X1": {
+      "type": "contradicting",
+      "mode": "ARCHITECTURE_INCOMPATIBILITY",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_ARCH_COMPATIBLE_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-CERTIFICATE_VALIDATION_FAILURE-E1": {
+      "type": "exclusion",
+      "mode": "CERTIFICATE_VALIDATION_FAILURE",
+      "kind": "mode_qualified",
+      "target": "CLOCK_SKEW",
+      "reason": "When CLOCK_SKEW is qualified, a certificate validity failure is its expected consequence; CERTIFICATE_VALIDATION_FAILURE is excluded as an independent cause and CLOCK_SKEW remediation applies.",
+      "effect": "Excludes the mode from selection when the condition holds."
+    },
+    "R-CERTIFICATE_VALIDATION_FAILURE-G1": {
+      "type": "required_group",
+      "mode": "CERTIFICATE_VALIDATION_FAILURE",
+      "group_id": "G1",
+      "description": "certificate verification failure signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_CERT_VERIFY_FAILED",
+            "PAT_TLS_HANDSHAKE_FAIL"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CERTIFICATE_VALIDATION_FAILURE-S1": {
+      "type": "supporting",
+      "mode": "CERTIFICATE_VALIDATION_FAILURE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_CERT_EXPIRED"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CERTIFICATE_VALIDATION_FAILURE-X1": {
+      "type": "contradicting",
+      "mode": "CERTIFICATE_VALIDATION_FAILURE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_CERT_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-CLOCK_SKEW-G1": {
+      "type": "required_group",
+      "mode": "CLOCK_SKEW",
+      "group_id": "G1",
+      "description": "clock skew or time synchronization failure signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_CLOCK_SKEW_MSG"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CLOCK_SKEW-S1": {
+      "type": "supporting",
+      "mode": "CLOCK_SKEW",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_CERT_NOT_YET_VALID"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CLOCK_SKEW-S2": {
+      "type": "supporting",
+      "mode": "CLOCK_SKEW",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_TIME_JUMP"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CLOCK_SKEW-X1": {
+      "type": "contradicting",
+      "mode": "CLOCK_SKEW",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_TIME_SYNCED"
+        ]
+      },
+      "weight": 25,
+      "veto": false,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-CONFIGURATION_SCHEMA_MISMATCH-G1": {
+      "type": "required_group",
+      "mode": "CONFIGURATION_SCHEMA_MISMATCH",
+      "group_id": "G1",
+      "description": "configuration validation failure signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_CFG_UNEXPECTED_KEY",
+            "PAT_CFG_MISSING_KEY",
+            "PAT_CFG_VALIDATION_FAILED",
+            "PAT_CFG_TYPE_MISMATCH"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CONFIGURATION_SCHEMA_MISMATCH-X1": {
+      "type": "contradicting",
+      "mode": "CONFIGURATION_SCHEMA_MISMATCH",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_CFG_VALIDATED_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-CPU_FALLBACK_VIOLATION-G1": {
+      "type": "required_group",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "group_id": "G1",
+      "description": "provider failure preceding the fallback",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_PROV_NPU_QNN_INIT_FAIL",
+            "PAT_PROV_INIT_FAILED",
+            "PAT_PROV_NOT_FOUND",
+            "PAT_PROV_LOAD_LIB_FAIL",
+            "PAT_PROV_NO_DELEGATE"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CPU_FALLBACK_VIOLATION-G2": {
+      "type": "required_group",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "group_id": "G2",
+      "description": "explicit CPU fallback selection by the runtime",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_CPU_FALLBACK_SELECTED",
+            "PAT_CPU_PROVIDER_SELECTED_VOCAB"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CPU_FALLBACK_VIOLATION-G3": {
+      "type": "required_group",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "group_id": "G3",
+      "description": "policy forbids CPU execution",
+      "any_of": [
+        {
+          "kind": "policy_forbids",
+          "provider": "CPU"
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CPU_FALLBACK_VIOLATION-G4": {
+      "type": "required_group",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "group_id": "G4",
+      "description": "resolvable event order: provider failure before CPU selection",
+      "any_of": [
+        {
+          "kind": "event_order",
+          "before_patterns": [
+            "PAT_PROV_NPU_QNN_INIT_FAIL",
+            "PAT_PROV_INIT_FAILED",
+            "PAT_PROV_NOT_FOUND",
+            "PAT_PROV_LOAD_LIB_FAIL",
+            "PAT_PROV_NO_DELEGATE"
+          ],
+          "after_patterns": [
+            "PAT_CPU_FALLBACK_SELECTED",
+            "PAT_CPU_PROVIDER_SELECTED_VOCAB"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-CPU_FALLBACK_VIOLATION-S1": {
+      "type": "supporting",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_TEMP_HIGH_READING"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CPU_FALLBACK_VIOLATION-S2": {
+      "type": "supporting",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "condition": {
+        "kind": "metric_gte",
+        "field": "cpu_temperature_c",
+        "value": 95
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CPU_FALLBACK_VIOLATION-S3": {
+      "type": "supporting",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_SYSTEM_UNRESPONSIVE"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-CPU_FALLBACK_VIOLATION-X1": {
+      "type": "contradicting",
+      "mode": "CPU_FALLBACK_VIOLATION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_CPU_POLICY_ALLOWS"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-DEPENDENCY_MISSING-G1": {
+      "type": "required_group",
+      "mode": "DEPENDENCY_MISSING",
+      "group_id": "G1",
+      "description": "module or package absence signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_DEP_MODULE_NOT_FOUND",
+            "PAT_DEP_IMPORT_ERROR",
+            "PAT_DEP_PKG_NOT_INSTALLED"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-DEPENDENCY_MISSING-S1": {
+      "type": "supporting",
+      "mode": "DEPENDENCY_MISSING",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_DEP_VERSION_CONFLICT"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-DEPENDENCY_MISSING-X1": {
+      "type": "contradicting",
+      "mode": "DEPENDENCY_MISSING",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_DEP_FS_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": false,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-DEPENDENCY_MISSING-X2": {
+      "type": "contradicting",
+      "mode": "DEPENDENCY_MISSING",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_DEP_INSTALL_SUCCEEDED"
+        ]
+      },
+      "weight": 25,
+      "veto": false,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-DNS_RESOLUTION_FAILURE-G1": {
+      "type": "required_group",
+      "mode": "DNS_RESOLUTION_FAILURE",
+      "group_id": "G1",
+      "description": "resolver failure signature from a usable log entry",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_DNS_GETADDRINFO_FAIL",
+            "PAT_DNS_EAI_ERROR",
+            "PAT_DNS_SERVER_UNREACHABLE"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-DNS_RESOLUTION_FAILURE-G2": {
+      "type": "required_group",
+      "mode": "DNS_RESOLUTION_FAILURE",
+      "group_id": "G2",
+      "description": "resolver configuration or secondary resolution failure context",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_DNS_RESOLV_LOOPBACK_NS",
+            "PAT_DNS_SERVER_UNREACHABLE",
+            "PAT_DNS_RESOLV_CONF_PATH",
+            "PAT_DNS_PKG_MGR_RESOLVE_FAIL"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-DNS_RESOLUTION_FAILURE-S1": {
+      "type": "supporting",
+      "mode": "DNS_RESOLUTION_FAILURE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_DNS_PKG_MGR_RESOLVE_FAIL"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-DNS_RESOLUTION_FAILURE-X1": {
+      "type": "contradicting",
+      "mode": "DNS_RESOLUTION_FAILURE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_DNS_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-EXECUTION_PROVIDER_UNAVAILABLE-G1": {
+      "type": "required_group",
+      "mode": "EXECUTION_PROVIDER_UNAVAILABLE",
+      "group_id": "G1",
+      "description": "provider initialization or availability failure signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_PROV_NPU_QNN_INIT_FAIL",
+            "PAT_PROV_INIT_FAILED",
+            "PAT_PROV_NOT_FOUND",
+            "PAT_PROV_LOAD_LIB_FAIL",
+            "PAT_PROV_NO_DELEGATE"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-EXECUTION_PROVIDER_UNAVAILABLE-S1": {
+      "type": "supporting",
+      "mode": "EXECUTION_PROVIDER_UNAVAILABLE",
+      "condition": {
+        "kind": "policy_is",
+        "policy": "NPU_ONLY"
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-EXECUTION_PROVIDER_UNAVAILABLE-S2": {
+      "type": "supporting",
+      "mode": "EXECUTION_PROVIDER_UNAVAILABLE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_SYSTEM_UNRESPONSIVE"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-EXECUTION_PROVIDER_UNAVAILABLE-X1": {
+      "type": "contradicting",
+      "mode": "EXECUTION_PROVIDER_UNAVAILABLE",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_PROV_READY"
+        ]
+      },
+      "weight": 25,
+      "veto": false,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-MEMORY_EXHAUSTION-G1": {
+      "type": "required_group",
+      "mode": "MEMORY_EXHAUSTION",
+      "group_id": "G1",
+      "description": "allocation failure signature or measured memory saturation",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_MEM_OOM",
+            "PAT_MEM_ALLOC_FAIL",
+            "PAT_MEM_LOW_WINDOWS"
+          ]
+        },
+        {
+          "kind": "metric_ratio_gte",
+          "field": "memory_used_mb",
+          "ref_field": "memory_total_mb",
+          "numerator": 95,
+          "denominator": 100
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-MEMORY_EXHAUSTION-S1": {
+      "type": "supporting",
+      "mode": "MEMORY_EXHAUSTION",
+      "condition": {
+        "kind": "metric_ratio_gte",
+        "field": "memory_used_mb",
+        "ref_field": "memory_total_mb",
+        "numerator": 90,
+        "denominator": 100
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-MEMORY_EXHAUSTION-X1": {
+      "type": "contradicting",
+      "mode": "MEMORY_EXHAUSTION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_MEM_AVAILABLE"
+        ]
+      },
+      "weight": 25,
+      "veto": false,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-MULTIPLE_CONCURRENT_FAILURES-SEL": {
+      "type": "engine_selection",
+      "mode": "MULTIPLE_CONCURRENT_FAILURES",
+      "effect": "Qualified modes are grouped by undirected closure over causal links declared in the catalogue. One component means one causal chain: the highest-priority member is primary and the others are contributing. Two or more components mean independent failures: this mode becomes primary, every qualified mode is retained in deterministic order, and remediation steps are emitted per mode."
+    },
+    "R-PERMISSION_DENIED-G1": {
+      "type": "required_group",
+      "mode": "PERMISSION_DENIED",
+      "group_id": "G1",
+      "description": "access refusal signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_PERM_DENIED",
+            "PAT_PERM_READONLY_FS"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-PERMISSION_DENIED-S1": {
+      "type": "supporting",
+      "mode": "PERMISSION_DENIED",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_PERM_ADMIN_REQUIRED"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-PERMISSION_DENIED-X1": {
+      "type": "contradicting",
+      "mode": "PERMISSION_DENIED",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_PERM_OK"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-PORT_CONFLICT-G1": {
+      "type": "required_group",
+      "mode": "PORT_CONFLICT",
+      "group_id": "G1",
+      "description": "bind refusal due to occupied address signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_PORT_IN_USE",
+            "PAT_PORT_BIND_FAILED"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-PORT_CONFLICT-S1": {
+      "type": "supporting",
+      "mode": "PORT_CONFLICT",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_PORT_PROCESS_IDENTIFIED"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-PORT_CONFLICT-X1": {
+      "type": "contradicting",
+      "mode": "PORT_CONFLICT",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_PORT_AVAILABLE"
+        ]
+      },
+      "weight": 25,
+      "veto": true,
+      "effect": "VETO excludes the mode outright; otherwise subtracts weight."
+    },
+    "R-THERMAL_LIMIT_VIOLATION-G1": {
+      "type": "required_group",
+      "mode": "THERMAL_LIMIT_VIOLATION",
+      "group_id": "G1",
+      "description": "thermal throttling or thermal limit event signature",
+      "any_of": [
+        {
+          "kind": "pattern_any",
+          "patterns": [
+            "PAT_THERMAL_THROTTLE"
+          ]
+        }
+      ],
+      "effect": "Every required group must be satisfied by usable evidence for the mode to be scored."
+    },
+    "R-THERMAL_LIMIT_VIOLATION-S1": {
+      "type": "supporting",
+      "mode": "THERMAL_LIMIT_VIOLATION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_TEMP_HIGH_READING"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-THERMAL_LIMIT_VIOLATION-S2": {
+      "type": "supporting",
+      "mode": "THERMAL_LIMIT_VIOLATION",
+      "condition": {
+        "kind": "metric_gte",
+        "field": "cpu_temperature_c",
+        "value": 95
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-THERMAL_LIMIT_VIOLATION-S3": {
+      "type": "supporting",
+      "mode": "THERMAL_LIMIT_VIOLATION",
+      "condition": {
+        "kind": "pattern_any",
+        "patterns": [
+          "PAT_SYSTEM_UNRESPONSIVE"
+        ]
+      },
+      "weight": 15,
+      "effect": "Adds weight to the mode score, capped by SUPPORT_MAX_COUNT."
+    },
+    "R-UNKNOWN_ROOT_CAUSE-SEL": {
+      "type": "engine_selection",
+      "mode": "UNKNOWN_ROOT_CAUSE",
+      "effect": "Selected when the qualified set is empty."
+    }
+  }
+}

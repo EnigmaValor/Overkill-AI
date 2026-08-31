@@ -1,0 +1,355 @@
+{
+  "version": "1.0.0",
+  "scoring_reference": "rulebook.json#/scoring",
+  "confidence_calculation": "score = clamp(BASE + SUPPORT_WEIGHT * min(matched_supporting, SUPPORT_MAX_COUNT) - CONTRADICT_WEIGHT * matched_contradicting, 0, 100). BASE=50, SUPPORT_WEIGHT=15, SUPPORT_MAX_COUNT=3, CONTRADICT_WEIGHT=25. A mode qualifies only if every required group is satisfied by usable evidence, no exclusion rule fires, no veto contradicting evidence matched, and score >= THRESHOLD (50). Identical normalized input always produces identical scores; all arithmetic is integer arithmetic.",
+  "minimum_confidence_threshold": 50,
+  "tie_breaking": "Candidates are ordered by (score descending, tie_break_priority ascending, mode id ascending byte order). This order is final and deterministic.",
+  "modes": [
+    {
+      "id": "DNS_RESOLUTION_FAILURE",
+      "definition": "The system cannot translate host or repository names into network addresses. Name resolution itself is the failing layer; the failure is not explained by a missing software package.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "resolver failure signature from a usable log entry", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_DNS_GETADDRINFO_FAIL", "PAT_DNS_EAI_ERROR", "PAT_DNS_SERVER_UNREACHABLE"]}]},
+        {"group_id": "G2", "description": "resolver configuration or secondary resolution failure context", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_DNS_RESOLV_LOOPBACK_NS", "PAT_DNS_SERVER_UNREACHABLE", "PAT_DNS_RESOLV_CONF_PATH", "PAT_DNS_PKG_MGR_RESOLVE_FAIL"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_DNS_PKG_MGR_RESOLVE_FAIL"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_DNS_OK"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Read /etc/resolv.conf and record the configured nameserver addresses without editing anything yet.", "action_kind": "INVESTIGATE"},
+        {"action": "Replace a loopback nameserver that is not 127.0.0.1 with a nameserver reachable from the host or guest as appropriate for the environment, or restore automated resolver generation if the environment manages it.", "action_kind": "RECONFIGURE"},
+        {"action": "Retry one name resolution and one package-manager metadata refresh, then confirm both succeed.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Reinstall the operating system to fix name resolution.", "Delete the package-manager database.", "Install unrelated packages as a fix for resolution errors."],
+      "rule_ids_note": "Rule identifiers for this mode are generated into rulebook.json as R-DNS_RESOLUTION_FAILURE-G1, R-DNS_RESOLUTION_FAILURE-G2, R-DNS_RESOLUTION_FAILURE-S1, R-DNS_RESOLUTION_FAILURE-X1.",
+      "tie_break_priority": 30,
+      "causal_links_out": []
+    },
+    {
+      "id": "DEPENDENCY_MISSING",
+      "definition": "The runtime cannot import or load a software component that the application declares as a dependency. The failing layer is package or module availability, not name resolution.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "module or package absence signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_DEP_MODULE_NOT_FOUND", "PAT_DEP_IMPORT_ERROR", "PAT_DEP_PKG_NOT_INSTALLED"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_DEP_VERSION_CONFLICT"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_DEP_FS_OK"]}, "weight": 25, "veto": false},
+        {"id": "X2", "condition": {"kind": "pattern_any", "patterns": ["PAT_DEP_INSTALL_SUCCEEDED"]}, "weight": 25, "veto": false}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Identify the exact missing module or package name from the failing log entry.", "action_kind": "INVESTIGATE"},
+        {"action": "Install the declared missing dependency from the project's configured package source at the declared version.", "action_kind": "RECONFIGURE"},
+        {"action": "Re-run the failing import or startup command and confirm the original error is gone.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Upgrade every dependency to latest versions to fix one missing module.", "Install packages from unverified URLs."],
+      "rule_ids_note": "Generated as R-DEPENDENCY_MISSING-G1, R-DEPENDENCY_MISSING-S1, R-DEPENDENCY_MISSING-X1, R-DEPENDENCY_MISSING-X2.",
+      "tie_break_priority": 50,
+      "causal_links_out": []
+    },
+    {
+      "id": "PERMISSION_DENIED",
+      "definition": "An operation was refused by the operating system because the caller lacks the required access rights on a specific resource.",
+      "severity": "MEDIUM",
+      "required_groups": [
+        {"group_id": "G1", "description": "access refusal signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_PERM_DENIED", "PAT_PERM_READONLY_FS"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_PERM_ADMIN_REQUIRED"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_PERM_OK"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Record the exact path or resource named in the refusal and the operating identity of the process.", "action_kind": "INVESTIGATE"},
+        {"action": "Grant the minimum required permission on that specific resource to the specific identity, or move the operation to a writable location.", "action_kind": "RECONFIGURE"},
+        {"action": "Retry the refused operation and confirm success.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Apply recursive world-writable permissions to a directory tree.", "Run the entire application permanently as root or administrator."],
+      "rule_ids_note": "Generated as R-PERMISSION_DENIED-G1, R-PERMISSION_DENIED-S1, R-PERMISSION_DENIED-X1.",
+      "tie_break_priority": 55,
+      "causal_links_out": []
+    },
+    {
+      "id": "CONFIGURATION_SCHEMA_MISMATCH",
+      "definition": "The application rejected its own configuration because the structure, keys, or value types do not match the configuration schema of the installed version.",
+      "severity": "MEDIUM",
+      "required_groups": [
+        {"group_id": "G1", "description": "configuration validation failure signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_CFG_UNEXPECTED_KEY", "PAT_CFG_MISSING_KEY", "PAT_CFG_VALIDATION_FAILED", "PAT_CFG_TYPE_MISMATCH"]}]}
+      ],
+      "supporting": [],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_CFG_VALIDATED_OK"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Extract the exact configuration keys and expected types named in the validation failure.", "action_kind": "INVESTIGATE"},
+        {"action": "Align the configuration file with the schema of the installed version: add missing keys, remove unknown keys, correct value types.", "action_kind": "RECONFIGURE"},
+        {"action": "Reload the application configuration and confirm validation passes.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Delete the configuration file and continue with undocumented defaults.", "Disable configuration validation in production."],
+      "rule_ids_note": "Generated as R-CONFIGURATION_SCHEMA_MISMATCH-G1, R-CONFIGURATION_SCHEMA_MISMATCH-X1.",
+      "tie_break_priority": 60,
+      "causal_links_out": []
+    },
+    {
+      "id": "ARCHITECTURE_INCOMPATIBILITY",
+      "definition": "A binary or package cannot execute because it was built for a CPU architecture different from the host architecture.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "architecture mismatch signature or a declared dependency built for a foreign architecture", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_ARCH_EXEC_FORMAT", "PAT_ARCH_MISMATCH_MSG", "PAT_ARCH_BAD_ELF"]},
+          {"kind": "arch_mismatch_dep"}]}
+      ],
+      "supporting": [],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_ARCH_COMPATIBLE_OK"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Record the host architecture and the architecture of the failing binary or package.", "action_kind": "INVESTIGATE"},
+        {"action": "Obtain or rebuild the dependency for the host architecture.", "action_kind": "RECONFIGURE"},
+        {"action": "Retry execution and confirm the binary loads.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Force execution through an emulation layer without a recorded decision that emulation is acceptable for this workload.", "Delete the binary and report success."],
+      "rule_ids_note": "Generated as R-ARCHITECTURE_INCOMPATIBILITY-G1, R-ARCHITECTURE_INCOMPATIBILITY-X1.",
+      "tie_break_priority": 45,
+      "causal_links_out": ["EXECUTION_PROVIDER_UNAVAILABLE"]
+    },
+    {
+      "id": "PORT_CONFLICT",
+      "definition": "A network listener cannot bind because another process already holds the requested address and port.",
+      "severity": "MEDIUM",
+      "required_groups": [
+        {"group_id": "G1", "description": "bind refusal due to occupied address signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_PORT_IN_USE", "PAT_PORT_BIND_FAILED"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_PORT_PROCESS_IDENTIFIED"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_PORT_AVAILABLE"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Query which process currently listens on the conflicting port and record its identity.", "action_kind": "INVESTIGATE"},
+        {"action": "Stop the conflicting process if it is disposable, or move the new listener to a free port in configuration.", "action_kind": "RECONFIGURE"},
+        {"action": "Retry the bind and confirm the listener starts.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Terminate arbitrary processes matching a name prefix without confirming identity.", "Disable the conflicting system service permanently without an owner decision."],
+      "rule_ids_note": "Generated as R-PORT_CONFLICT-G1, R-PORT_CONFLICT-S1, R-PORT_CONFLICT-X1.",
+      "tie_break_priority": 40,
+      "causal_links_out": []
+    },
+    {
+      "id": "MEMORY_EXHAUSTION",
+      "definition": "The system or process ran out of usable memory for allocations, up to and including the kernel killing the process.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "allocation failure signature or measured memory saturation", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_MEM_OOM", "PAT_MEM_ALLOC_FAIL", "PAT_MEM_LOW_WINDOWS"]},
+          {"kind": "metric_ratio_gte", "field": "memory_used_mb", "ref_field": "memory_total_mb", "numerator": 95, "denominator": 100}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "metric_ratio_gte", "field": "memory_used_mb", "ref_field": "memory_total_mb", "numerator": 90, "denominator": 100}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_MEM_AVAILABLE"]}, "weight": 25, "veto": false}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Record which process or subsystem consumed the memory and the configured limits.", "action_kind": "INVESTIGATE"},
+        {"action": "Reduce the workload's memory footprint or raise its limit within the declared user constraints.", "action_kind": "RECONFIGURE"},
+        {"action": "Re-run the workload and confirm allocation succeeds and memory stays below the limit.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Disable the out-of-memory killer to make the symptom disappear.", "Restart repeatedly without measuring which allocation grew."],
+      "rule_ids_note": "Generated as R-MEMORY_EXHAUSTION-G1, R-MEMORY_EXHAUSTION-S1, R-MEMORY_EXHAUSTION-X1.",
+      "tie_break_priority": 35,
+      "causal_links_out": []
+    },
+    {
+      "id": "THERMAL_LIMIT_VIOLATION",
+      "definition": "The platform engaged thermal management or crossed a documented thermal limit, throttling or halting execution because of heat.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "thermal throttling or thermal limit event signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_THERMAL_THROTTLE"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_TEMP_HIGH_READING"]}, "weight": 15},
+        {"id": "S2", "condition": {"kind": "metric_gte", "field": "cpu_temperature_c", "value": 95}, "weight": 15},
+        {"id": "S3", "condition": {"kind": "pattern_any", "patterns": ["PAT_SYSTEM_UNRESPONSIVE"]}, "weight": 15}
+      ],
+      "contradicting": [],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Pause the workload immediately and let the platform report current temperatures.", "action_kind": "STOP_EXECUTION_NOW"},
+        {"action": "Verify ventilation, fan or passive-cooling operation, and ambient conditions.", "action_kind": "INVESTIGATE"},
+        {"action": "Resume only after temperature readings return below the platform's documented sustained limit.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Ignore throttle events and continue at full load.", "Disable thermal management in firmware."],
+      "rule_ids_note": "Generated as R-THERMAL_LIMIT_VIOLATION-G1, R-THERMAL_LIMIT_VIOLATION-S1, R-THERMAL_LIMIT_VIOLATION-S2, R-THERMAL_LIMIT_VIOLATION-S3.",
+      "tie_break_priority": 65,
+      "causal_links_out": []
+    },
+    {
+      "id": "EXECUTION_PROVIDER_UNAVAILABLE",
+      "definition": "A hardware acceleration provider (NPU, QNN, GPU class) failed to initialize or is absent, so accelerated execution cannot start.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "provider initialization or availability failure signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_PROV_NPU_QNN_INIT_FAIL", "PAT_PROV_INIT_FAILED", "PAT_PROV_NOT_FOUND", "PAT_PROV_LOAD_LIB_FAIL", "PAT_PROV_NO_DELEGATE"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "policy_is", "policy": "NPU_ONLY"}, "weight": 15},
+        {"id": "S2", "condition": {"kind": "pattern_any", "patterns": ["PAT_SYSTEM_UNRESPONSIVE"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_PROV_READY"]}, "weight": 25, "veto": false}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Record the provider name, library path, and the exact initialization error.", "action_kind": "INVESTIGATE"},
+        {"action": "Verify provider libraries exist for the host architecture and match the runtime version; correct the provider configuration.", "action_kind": "RECONFIGURE"},
+        {"action": "Re-run initialization and confirm the provider reports ready.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Continue serving production traffic while accelerated execution is unavailable.", "Remove the provider from the allowed list to silence the error."],
+      "rule_ids_note": "Generated as R-EXECUTION_PROVIDER_UNAVAILABLE-G1, R-EXECUTION_PROVIDER_UNAVAILABLE-S1, R-EXECUTION_PROVIDER_UNAVAILABLE-S2, R-EXECUTION_PROVIDER_UNAVAILABLE-X1.",
+      "tie_break_priority": 20,
+      "causal_links_out": ["CPU_FALLBACK_VIOLATION"]
+    },
+    {
+      "id": "CPU_FALLBACK_VIOLATION",
+      "definition": "After an acceleration provider failed, the runtime moved execution to the CPU even though the declared execution policy forbids CPU execution. The violation is the fallback itself, not the provider failure that caused it.",
+      "severity": "CRITICAL",
+      "required_groups": [
+        {"group_id": "G1", "description": "provider failure preceding the fallback", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_PROV_NPU_QNN_INIT_FAIL", "PAT_PROV_INIT_FAILED", "PAT_PROV_NOT_FOUND", "PAT_PROV_LOAD_LIB_FAIL", "PAT_PROV_NO_DELEGATE"]}]},
+        {"group_id": "G2", "description": "explicit CPU fallback selection by the runtime", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_CPU_FALLBACK_SELECTED", "PAT_CPU_PROVIDER_SELECTED_VOCAB"]}]},
+        {"group_id": "G3", "description": "policy forbids CPU execution", "any_of": [
+          {"kind": "policy_forbids", "provider": "CPU"}]},
+        {"group_id": "G4", "description": "resolvable event order: provider failure before CPU selection", "any_of": [
+          {"kind": "event_order", "before_patterns": ["PAT_PROV_NPU_QNN_INIT_FAIL", "PAT_PROV_INIT_FAILED", "PAT_PROV_NOT_FOUND", "PAT_PROV_LOAD_LIB_FAIL", "PAT_PROV_NO_DELEGATE"], "after_patterns": ["PAT_CPU_FALLBACK_SELECTED", "PAT_CPU_PROVIDER_SELECTED_VOCAB"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_TEMP_HIGH_READING"]}, "weight": 15},
+        {"id": "S2", "condition": {"kind": "metric_gte", "field": "cpu_temperature_c", "value": 95}, "weight": 15},
+        {"id": "S3", "condition": {"kind": "pattern_any", "patterns": ["PAT_SYSTEM_UNRESPONSIVE"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_CPU_POLICY_ALLOWS"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Stop execution immediately; the workload is running on a provider the policy forbids.", "action_kind": "STOP_EXECUTION_NOW"},
+        {"action": "Investigate the provider initialization failure recorded before the fallback.", "action_kind": "INVESTIGATE"},
+        {"action": "Configure the runtime to fail closed on provider failure instead of falling back, per the declared policy.", "action_kind": "RECONFIGURE"},
+        {"action": "Restart and confirm either accelerated execution or a clean startup refusal, never silent CPU execution.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Continue execution on CPU until a fix is convenient.", "Disable or weaken the execution policy check.", "Suppress the fallback warning in logs."],
+      "rule_ids_note": "Generated as R-CPU_FALLBACK_VIOLATION-G1 through G4, R-CPU_FALLBACK_VIOLATION-S1 through S3, R-CPU_FALLBACK_VIOLATION-X1.",
+      "tie_break_priority": 10,
+      "causal_links_out": ["THERMAL_LIMIT_VIOLATION"]
+    },
+    {
+      "id": "CLOCK_SKEW",
+      "definition": "System time differs from real time enough to break time-dependent validation, most visibly certificate validity windows.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "clock skew or time synchronization failure signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_CLOCK_SKEW_MSG"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_CERT_NOT_YET_VALID"]}, "weight": 15},
+        {"id": "S2", "condition": {"kind": "pattern_any", "patterns": ["PAT_TIME_JUMP"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_TIME_SYNCED"]}, "weight": 25, "veto": false}
+      ],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Record current system time, real time from a trusted reference, and the measured offset.", "action_kind": "INVESTIGATE"},
+        {"action": "Resynchronize system time and verify the hardware clock retains it.", "action_kind": "RECONFIGURE"},
+        {"action": "Re-run the time-dependent operation that failed and confirm it succeeds.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Disable certificate validation to work around clock-caused failures.", "Set certificates to ignore validity dates."],
+      "rule_ids_note": "Generated as R-CLOCK_SKEW-G1, R-CLOCK_SKEW-S1, R-CLOCK_SKEW-S2, R-CLOCK_SKEW-X1.",
+      "tie_break_priority": 70,
+      "causal_links_out": ["CERTIFICATE_VALIDATION_FAILURE"]
+    },
+    {
+      "id": "CERTIFICATE_VALIDATION_FAILURE",
+      "definition": "TLS certificate verification failed because the certificate or trust configuration is invalid, untrusted, or expired.",
+      "severity": "HIGH",
+      "required_groups": [
+        {"group_id": "G1", "description": "certificate verification failure signature", "any_of": [
+          {"kind": "pattern_any", "patterns": ["PAT_CERT_VERIFY_FAILED", "PAT_TLS_HANDSHAKE_FAIL"]}]}
+      ],
+      "supporting": [
+        {"id": "S1", "condition": {"kind": "pattern_any", "patterns": ["PAT_CERT_EXPIRED"]}, "weight": 15}
+      ],
+      "contradicting": [
+        {"id": "X1", "condition": {"kind": "pattern_any", "patterns": ["PAT_CERT_OK"]}, "weight": 25, "veto": true}
+      ],
+      "exclusion_rules": [
+        {"id": "E1", "kind": "mode_qualified", "mode": "CLOCK_SKEW", "reason": "When CLOCK_SKEW is qualified, a certificate validity failure is its expected consequence; CERTIFICATE_VALIDATION_FAILURE is excluded as an independent cause and CLOCK_SKEW remediation applies."}
+      ],
+      "permitted_remediation": [
+        {"action": "Extract the failing certificate chain, hostname, and verification error.", "action_kind": "INVESTIGATE"},
+        {"action": "Repair the certificate or the trust store entry for the named host.", "action_kind": "RECONFIGURE"},
+        {"action": "Retry the connection and confirm verification succeeds.", "action_kind": "VERIFY"}
+      ],
+      "forbidden_remediation": ["Disable certificate verification globally or per-application to make the error disappear.", "Add a blanket trust-all entry."],
+      "rule_ids_note": "Generated as R-CERTIFICATE_VALIDATION_FAILURE-G1, R-CERTIFICATE_VALIDATION_FAILURE-S1, R-CERTIFICATE_VALIDATION_FAILURE-X1, R-CERTIFICATE_VALIDATION_FAILURE-E1.",
+      "tie_break_priority": 75,
+      "causal_links_out": []
+    },
+    {
+      "id": "MULTIPLE_CONCURRENT_FAILURES",
+      "definition": "Two or more failure modes independently satisfy their evidence requirements and no declared causal link explains them as one chain. Engine-managed classifier: it is selected when the qualified set splits into two or more causally independent components.",
+      "severity": "HIGH",
+      "required_groups": [],
+      "supporting": [],
+      "contradicting": [],
+      "exclusion_rules": [],
+      "permitted_remediation": [],
+      "forbidden_remediation": [],
+      "engine_managed": {"selection": "Qualified modes are grouped by undirected closure over causal links declared in the catalogue. One component means one causal chain: the highest-priority member is primary and the others are contributing. Two or more components mean independent failures: this mode becomes primary, every qualified mode is retained in deterministic order, and remediation steps are emitted per mode."},
+      "rule_ids_note": "Generated as R-MULTIPLE_CONCURRENT_FAILURES-SEL.",
+      "tie_break_priority": 5,
+      "causal_links_out": []
+    },
+    {
+      "id": "UNKNOWN_ROOT_CAUSE",
+      "definition": "No catalogue mode satisfies its required evidence with usable evidence. The engine states this explicitly, lists what is missing, and invents nothing.",
+      "severity": "LOW",
+      "required_groups": [],
+      "supporting": [],
+      "contradicting": [],
+      "exclusion_rules": [],
+      "permitted_remediation": [
+        {"action": "Collect the missing evidence items listed in missing_required_evidence.", "action_kind": "COLLECT_EVIDENCE"}
+      ],
+      "forbidden_remediation": ["Apply speculative configuration changes without a matching failure mode.", "Treat absence of diagnosis as evidence of safety."],
+      "engine_managed": {"selection": "Selected when the qualified set is empty."},
+      "rule_ids_note": "Generated as R-UNKNOWN_ROOT_CAUSE-SEL.",
+      "tie_break_priority": 999,
+      "causal_links_out": []
+    }
+  ]
+}
